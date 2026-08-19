@@ -1,0 +1,26 @@
+# ウイルススキャンservice (Cloud Run service、EventarcからのHTTP push経由でGCS object finalizeイベントを受信)
+# --- build stage ---
+FROM node:20-bookworm-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build
+
+# --- runtime stage ---
+FROM node:20-bookworm-slim
+WORKDIR /app
+ENV NODE_ENV=production
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends clamav clamav-freshclam ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    # ビルド時点の定義を焼き込む(ネットワーク不通でも失敗させない)。実行時にも freshclam を再実行する。
+    && (freshclam || true)
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev
+COPY --from=build /app/dist ./dist
+COPY scan-entrypoint.sh ./
+RUN chmod +x scan-entrypoint.sh
+EXPOSE 8080
+ENTRYPOINT ["./scan-entrypoint.sh"]

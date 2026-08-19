@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -t
+      - 'asia-northeast1-docker.pkg.dev/msp-zabbix/cloud-run-source-deploy/ppap-virus-scan'
+      - -f
+      - Dockerfile.scan
+      - .
+images:
+  - 'asia-northeast1-docker.pkg.dev/msp-zabbix/cloud-run-source-deploy/ppap-virus-scan'

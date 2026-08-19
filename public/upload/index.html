@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>atLIB ファイル送信</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --ink: #1a2333;
+    --muted: #647089;
+    --faint: #97a1b3;
+    --accent: #2c64a6;
+    --accent-ink: #16233c;
+    --line: #e2e6ec;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Hiragino Sans", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 32px 16px 24px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .page { max-width: 640px; width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
+  .site-header { margin-bottom: 20px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand .mark-icon { width: 32px; height: 32px; border-radius: 8px; flex: none; }
+  .brand .wordmark { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand .wordmark .name { font-size: 1rem; font-weight: 800; color: var(--accent-ink); letter-spacing: -0.01em; }
+  .brand .wordmark .tagline { font-size: 0.6rem; font-weight: 700; color: var(--accent); letter-spacing: 0.14em; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 28px 32px;
+    box-shadow: 0 1px 2px rgba(20, 30, 50, 0.04), 0 8px 24px -16px rgba(20, 30, 50, 0.15);
+    flex: 1;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  h2 { font-size: 1.02rem; margin: 0 0 4px; }
+  .lede { color: var(--muted); font-size: 0.88rem; margin: 0 0 20px; }
+  label { display: block; margin-top: 12px; font-size: 0.9rem; font-weight: 600; }
+  input, textarea, select {
+    width: 100%; box-sizing: border-box; padding: 8px 10px; margin-top: 4px;
+    font-size: 1rem; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px;
+  }
+  input:focus, textarea:focus, select:focus, button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  textarea { font-family: inherit; }
+  button {
+    margin-top: 16px; padding: 10px 20px; font-size: 1rem; font-weight: 600; cursor: pointer;
+    color: #fff; background: var(--accent); border: none; border-radius: 8px;
+  }
+  button:hover:not(:disabled) { background: var(--accent-ink); }
+  button:disabled { opacity: 0.6; cursor: default; }
+  #status { margin-top: 16px; white-space: pre-wrap; font-size: 0.9rem; }
+  .hint { margin-top: 4px; font-size: 0.78rem; color: #c23b31; font-weight: 400; }
+  .progress-line { display: none; align-items: center; gap: 8px; margin-top: 16px; font-size: 0.9rem; color: var(--muted); }
+  .progress-line.show { display: flex; }
+  .spinner {
+    width: 15px; height: 15px; border-radius: 50%; flex: none;
+    border: 2px solid var(--line); border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .section { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .file-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .file-row:first-of-type { margin-top: 4px; }
+  .file-row input[type="file"] { margin-top: 0; flex: 1; }
+  .file-row .remove-file-row {
+    flex: none; margin-top: 0; padding: 6px 10px; font-size: 0.85rem; font-weight: 400;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--line);
+  }
+  .file-row .remove-file-row:hover:not(:disabled) { color: #c23b31; border-color: #c23b31; background: var(--surface); }
+  .ghost-btn {
+    margin-top: 10px; padding: 7px 14px; font-size: 0.85rem; font-weight: 600;
+    color: var(--accent); background: var(--surface); border: 1px dashed var(--line);
+  }
+  .ghost-btn:hover:not(:disabled) { background: #eef1f6; color: var(--accent-ink); border-color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.85rem; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 6px; text-align: left; }
+  th { color: var(--muted); font-weight: 600; }
+  .site-footer {
+    margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line);
+    text-align: center; font-size: 0.75rem; color: var(--faint);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="site-header">
+    <div class="brand">
+      <img class="mark-icon" src="/assets/logo-mark.png" alt="">
+      <div class="wordmark"><span class="name">atLIB</span><span class="tagline">SECURE SEND</span></div>
+    </div>
+  </header>
+
+  <main class="card">
+    <h1>ファイル送信</h1>
+    <p class="lede">アップロードしたファイルはウイルススキャン後、受信者にダウンロードリンクをメールで通知します。受信者はメールOTPでの本人確認後にダウンロードできます。</p>
+
+    <form id="upload-form">
+      <label>送信者氏名 <input type="text" id="senderName" required></label>
+      <label>受信者メールアドレス <input type="email" id="recipientEmail" required></label>
+      <label>メッセージ(任意) <textarea id="recipientNote" rows="16">いつも大変お世話になっております。
+atLIB株式会社の{{送信者氏名}}です。
+
+ご依頼のファイルをお送りいたします。
+
+弊社ではセキュリティ強化（脱PPAP施策）のため、ファイル共有システム「atLIB SecureSend」を採用しております。
+
+【ダウンロード手順】
+1. 下記のダウンロード用URLをクリックしてください。
+2. ご自身のメールアドレスに届く「ワンタイムパスワード（OTP）」をご入力のうえ、ファイルをダウンロードしてください。
+
+--------------------------------------------------
+【送付ファイル】
+{{ファイル名}}
+
+【補足・連絡事項】
+
+--------------------------------------------------
+
+ご不明な点がございましたら、お気軽にお問い合わせください。
+何卒よろしくお願い申し上げます。</textarea></label>
+      <label>ファイル(複数追加可)</label>
+      <div id="file-rows"></div>
+      <button type="button" id="add-file-row" class="ghost-btn">+ ファイルを追加</button>
+      <p class="hint">zipファイルはパスワードをかけずに送信してください。<br>アップロード容量の上限は1ファイルにつき200MBです。</p>
+      <label>有効期限(日数) <select id="expiresInDays">
+        <option value="3">3日</option>
+        <option value="7" selected>7日</option>
+        <option value="14">14日</option>
+      </select></label>
+      <button type="submit" id="send-btn">送信</button>
+      <div class="progress-line" id="progress-line"><span class="spinner"></span><span id="progress-text"></span></div>
+    </form>
+    <div id="status"></div>
+
+    <div class="section">
+      <h2>送信履歴</h2>
+      <table id="history"><thead><tr><th>宛先</th><th>ファイル名</th><th>状態</th><th>DL回数</th><th>期限</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="section">
+      <a href="/audit.html">監査ログを見る →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">© 2026 atLIB Inc.</footer>
+</div>
+
+<script src="upload.js"></script>
+</body>
+</html>

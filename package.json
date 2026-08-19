@@ -1,0 +1,40 @@
+{
+  "name": "ppap-file-transfer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "atLIB PPAP回避ファイル送信システム(社内→社外、有効期限付きリンク+メールOTP+ウイルススキャン)",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start:upload": "node dist/upload-server.js",
+    "start:download": "node dist/download-server.js",
+    "start:scan": "node dist/jobs/scanJob.js",
+    "dev:upload": "ts-node-dev --respawn --transpile-only src/upload-server.ts",
+    "dev:download": "ts-node-dev --respawn --transpile-only src/download-server.ts",
+    "migrate": "node --env-file=.env -r ts-node/register migrations/runner.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@google-cloud/secret-manager": "^5.6.0",
+    "@google-cloud/storage": "^7.14.0",
+    "bcrypt": "^5.1.1",
+    "express": "^4.19.2",
+    "jose": "^5.9.6",
+    "nodemailer": "^9.0.3",
+    "pg": "^8.11.5",
+    "pino": "^9.0.0",
+    "pino-http": "^10.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.12",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.11.6",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}
