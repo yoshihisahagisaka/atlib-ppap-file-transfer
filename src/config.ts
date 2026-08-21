@@ -42,6 +42,15 @@ export interface Config {
     maxUploadSizeMb: number;
   };
   staffNotifyEmail?: string; // 感染検知時などの社内通知先(任意)
+  // sso-verify-server専用(SSO検証スパイク)。GOOGLE_OAUTH_CLIENT_ID等が環境変数に無ければ
+  // 各プロパティはundefinedのままになり、Secret Manager呼び出しも一切発生しない
+  // (upload/download/scanの3本番サービスの起動挙動には影響しない)。
+  sso: {
+    google?: { clientId: string; clientSecret: string; redirectUri: string };
+    microsoft?: { clientId: string; clientSecret: string; tenantId: string; redirectUri: string };
+    sessionSecret?: string;
+    seatCapDefault: number;
+  };
 }
 
 async function resolveSecret(
@@ -63,6 +72,41 @@ export async function loadConfig(): Promise<Config> {
 
   const dbPassword = await resolveSecret(gcpProjectId, process.env.DB_PASSWORD, 'ppap-db-password');
   const smtpPassword = await resolveSecret(gcpProjectId, process.env.SMTP_PASSWORD, 'ppap-smtp-password');
+
+  // sso-verify-server専用。対応する環境変数が設定されている場合のみ解決する(ガード)。
+  // upload/download/scanのデプロイにはこれらの環境変数が存在しないため、それらのサービスでは
+  // google/microsoft/sessionSecretは常にundefinedのままとなり、新規のSecret Manager呼び出しは発生しない。
+  const googleClientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
+  const google = googleClientId
+    ? {
+        clientId: googleClientId,
+        clientSecret: await resolveSecret(
+          gcpProjectId,
+          process.env.GOOGLE_OAUTH_CLIENT_SECRET,
+          'ppap-sso-verify-google-client-secret',
+        ),
+        redirectUri: required('GOOGLE_OAUTH_REDIRECT_URI', process.env.GOOGLE_OAUTH_REDIRECT_URI),
+      }
+    : undefined;
+
+  const microsoftClientId = process.env.MICROSOFT_OAUTH_CLIENT_ID;
+  const microsoft = microsoftClientId
+    ? {
+        clientId: microsoftClientId,
+        clientSecret: await resolveSecret(
+          gcpProjectId,
+          process.env.MICROSOFT_OAUTH_CLIENT_SECRET,
+          'ppap-sso-verify-entra-client-secret',
+        ),
+        tenantId: required('MICROSOFT_OAUTH_TENANT_ID', process.env.MICROSOFT_OAUTH_TENANT_ID),
+        redirectUri: required('MICROSOFT_OAUTH_REDIRECT_URI', process.env.MICROSOFT_OAUTH_REDIRECT_URI),
+      }
+    : undefined;
+
+  const ssoConfigured = Boolean(googleClientId || microsoftClientId);
+  const sessionSecret = ssoConfigured
+    ? await resolveSecret(gcpProjectId, process.env.SSO_SESSION_SECRET, 'ppap-sso-verify-session-secret')
+    : process.env.SSO_SESSION_SECRET;
 
   return {
     nodeEnv: process.env.NODE_ENV ?? 'development',
@@ -100,5 +144,11 @@ export async function loadConfig(): Promise<Config> {
       maxUploadSizeMb: Number(process.env.MAX_UPLOAD_SIZE_MB ?? 200),
     },
     staffNotifyEmail: process.env.STAFF_NOTIFY_EMAIL || undefined,
+    sso: {
+      google,
+      microsoft,
+      sessionSecret,
+      seatCapDefault: Number(process.env.SSO_SEAT_CAP_DEFAULT ?? 3),
+    },
   };
 }

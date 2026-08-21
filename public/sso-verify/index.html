@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SSO検証スパイク</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --ink: #1a2333;
+    --muted: #647089;
+    --faint: #97a1b3;
+    --accent: #2c64a6;
+    --accent-ink: #16233c;
+    --line: #e2e6ec;
+    --ok: #1a7a4c;
+    --warn: #b5641c;
+    --bad: #c23b31;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Hiragino Sans", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 32px 16px 24px;
+    min-height: 100vh;
+  }
+  .page { max-width: 520px; width: 100%; margin: 0 auto; }
+  .wordmark { font-size: 0.9rem; font-weight: 800; color: var(--accent-ink); letter-spacing: -0.01em; margin-bottom: 4px; }
+  .tagline { font-size: 0.6rem; font-weight: 700; color: var(--accent); letter-spacing: 0.14em; margin-bottom: 20px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 28px 32px;
+    box-shadow: 0 1px 2px rgba(20, 30, 50, 0.04), 0 8px 24px -16px rgba(20, 30, 50, 0.15);
+  }
+  h1 { font-size: 1.15rem; margin: 0 0 4px; }
+  .lede { color: var(--muted); font-size: 0.85rem; margin: 0 0 20px; }
+  .login-buttons { display: flex; flex-direction: column; gap: 10px; }
+  .login-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 16px; font-size: 0.95rem; font-weight: 600; text-decoration: none;
+    color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  }
+  .login-btn:hover { border-color: var(--accent); color: var(--accent-ink); }
+  #status-area { margin-top: 20px; }
+  .status-card {
+    padding: 14px 16px; border-radius: 10px; font-size: 0.88rem; line-height: 1.6;
+    border: 1px solid var(--line); background: #f7f9fc;
+  }
+  .status-card.provisioned { border-color: var(--ok); background: #edf9f2; }
+  .status-card.over_cap { border-color: var(--warn); background: #fdf4ea; }
+  .status-card.domain_not_registered { border-color: var(--bad); background: #fdefed; }
+  .status-badge { font-weight: 700; }
+  .status-card.provisioned .status-badge { color: var(--ok); }
+  .status-card.over_cap .status-badge { color: var(--warn); }
+  .status-card.domain_not_registered .status-badge { color: var(--bad); }
+  #logout-btn {
+    margin-top: 12px; padding: 7px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  }
+  #logout-btn:hover { color: var(--bad); border-color: var(--bad); }
+  .signed-out-hint { color: var(--faint); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="wordmark">atLIB SecureSend</div>
+  <div class="tagline">SSO検証スパイク(社内技術検証用)</div>
+
+  <main class="card">
+    <h1>SSOログイン検証</h1>
+    <p class="lede">Google / Microsoft Entra IDでログインし、ドメイン一致によるJITプロビジョニング(座席上限判定)を確認します。本番のupload-service(IAP配下)とは完全に独立したスパイクです。</p>
+
+    <div class="login-buttons">
+      <a class="login-btn" href="/auth/google/login">Googleでログイン</a>
+      <a class="login-btn" href="/auth/microsoft/login">Microsoftでログイン</a>
+    </div>
+
+    <div id="status-area"></div>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

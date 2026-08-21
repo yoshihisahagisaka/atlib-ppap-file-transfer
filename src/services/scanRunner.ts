@@ -99,10 +99,15 @@ export async function scanUploadedObject(
       if (group2) {
         await mailer.sendInfectedNotice(group2.senderEmail, transfer.originalFilename);
         if (config.staffNotifyEmail) {
+          const recipients = await transferGroupRepo.findRecipients(group2.id);
+          const toLabel = recipients
+            .filter((r) => r.kind === 'to')
+            .map((r) => r.email)
+            .join(', ');
           await mailer.sendStaffAlert(
             config.staffNotifyEmail,
             'ウイルス検出によりファイルを削除しました',
-            `送信者: ${group2.senderEmail}\n宛先: ${group2.recipientEmail}\nファイル名: ${transfer.originalFilename}\ntransferId: ${transfer.id}`,
+            `送信者: ${group2.senderEmail}\n宛先: ${toLabel}\nファイル名: ${transfer.originalFilename}\ntransferId: ${transfer.id}`,
           );
         }
       }
@@ -149,9 +154,14 @@ async function maybeSendGroupNotification(deps: ScanDeps, group: ScanGroupContex
     return;
   }
 
+  const recipients = await transferGroupRepo.findRecipients(group.groupId);
+  const to = recipients.filter((r) => r.kind === 'to').map((r) => r.email);
+  const cc = recipients.filter((r) => r.kind === 'cc').map((r) => r.email);
+
   const downloadUrl = `${config.downloadBaseUrl}/d/${group.token}`;
   await mailer.sendGroupDownloadLinkNotice({
-    to: groupInfo.recipientEmail,
+    to,
+    cc,
     senderEmail: groupInfo.senderEmail,
     senderName: groupInfo.senderName ?? groupInfo.senderEmail,
     note: groupInfo.recipientNote,

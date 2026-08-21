@@ -116,7 +116,13 @@ export class TransferRepo {
       revoked_at: Date | null;
       created_at: Date;
     }>(
-      `SELECT t.id, t.group_id, g.recipient_email, t.original_filename, t.size_bytes, t.status,
+      `SELECT t.id, t.group_id,
+              COALESCE(
+                (SELECT string_agg(email, ', ' ORDER BY email) FROM transfer_group_recipients
+                  WHERE group_id = g.id AND kind = 'to'),
+                ''
+              ) AS recipient_email,
+              t.original_filename, t.size_bytes, t.status,
               g.download_count, g.max_downloads, g.expires_at, g.revoked_at, t.created_at
          FROM transfers t
          JOIN transfer_groups g ON g.id = t.group_id

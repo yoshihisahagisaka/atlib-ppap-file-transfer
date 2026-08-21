@@ -8,9 +8,12 @@
     "start:upload": "node dist/upload-server.js",
     "start:download": "node dist/download-server.js",
     "start:scan": "node dist/jobs/scanJob.js",
+    "start:sso-verify": "node dist/sso-verify-server.js",
     "dev:upload": "ts-node-dev --respawn --transpile-only src/upload-server.ts",
     "dev:download": "ts-node-dev --respawn --transpile-only src/download-server.ts",
-    "migrate": "node --env-file=.env -r ts-node/register migrations/runner.ts"
+    "dev:sso-verify": "node --env-file=sso-verify.env -r ts-node/register src/sso-verify-server.ts",
+    "migrate": "node --env-file=.env -r ts-node/register migrations/runner.ts",
+    "migrate:sso-verify": "node --env-file=sso-verify.env -r ts-node/register migrations/runner.ts"
   },
   "engines": {
     "node": ">=20"

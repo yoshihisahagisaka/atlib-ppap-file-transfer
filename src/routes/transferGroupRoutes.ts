@@ -4,10 +4,41 @@ import type { Config } from '../config';
 import type { TransferGroupRepo } from '../services/transferGroupRepo';
 import type { AuditLogRepo } from '../services/auditLogRepo';
 import { generateDownloadToken, hashDownloadToken } from '../services/tokenService';
+import { parseEmailList } from '../lib/emailList';
+
+const MAX_RECIPIENTS_PER_FIELD = 10;
+
+/** カンマ区切りのTo/CC文字列を受け取り、検証済みのメールアドレス配列に変換する。 */
+function emailListField(opts: { required: boolean }) {
+  return z
+    .string()
+    .max(2000)
+    .optional()
+    .superRefine((raw, ctx) => {
+      const hasValue = typeof raw === 'string' && raw.trim().length > 0;
+      if (!hasValue && opts.required) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: '宛先を1件以上入力してください' });
+      }
+    })
+    .transform((raw, ctx): string[] => {
+      if (!raw || raw.trim().length === 0) return [];
+      const { emails, invalid } = parseEmailList(raw);
+      if (invalid.length > 0) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `メールアドレスの形式が不正です: ${invalid.join(', ')}` });
+        return z.NEVER;
+      }
+      if (emails.length > MAX_RECIPIENTS_PER_FIELD) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `宛先は${MAX_RECIPIENTS_PER_FIELD}件までです` });
+        return z.NEVER;
+      }
+      return emails;
+    });
+}
 
 const createSchema = z.object({
   senderName: z.string().min(1).max(100),
-  recipientEmail: z.string().email(),
+  to: emailListField({ required: true }),
+  cc: emailListField({ required: false }),
   recipientNote: z.string().max(2000).optional(),
   expiresInDays: z.number().int().positive().optional(),
 });
@@ -33,6 +64,10 @@ export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, 
     }
     const input = parsed.data;
 
+    // 同じアドレスがTo/CC両方に入力された場合はTo(より強い権限)を優先し、CC側からは除く。
+    const toSet = new Set(input.to);
+    const cc = input.cc.filter((email) => !toSet.has(email));
+
     const expiresInDays = Math.min(
       input.expiresInDays ?? config.transfer.defaultExpiresDays,
       config.transfer.maxExpiresDays,
@@ -45,7 +80,8 @@ export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, 
     const group = await transferGroupRepo.create({
       senderEmail,
       senderName: input.senderName,
-      recipientEmail: input.recipientEmail,
+      to: input.to,
+      cc,
       recipientNote: input.recipientNote ?? null,
       tokenHash,
       expiresAt,
@@ -58,7 +94,7 @@ export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, 
       event: 'created',
       actor: senderEmail,
       ipAddress: req.ip ?? null,
-      detail: { recipientEmail: input.recipientEmail },
+      detail: { to: input.to, cc },
     });
 
     res.status(201).json({

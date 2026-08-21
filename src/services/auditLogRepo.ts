@@ -67,14 +67,17 @@ export class AuditLogRepo {
    * 監査ログ閲覧画面向け。全ユーザー分を横断して直近分を新しい順に返す。
    * ファイル単位のイベント(uploaded/scan_clean等)はtransfersを、グループ単位のイベント
    * (created/otp_requested/otp_verified/downloaded/revoked等)はtransfer_groupsを参照して
-   * ファイル名・送信者・宛先を補完する(COALESCEでどちらか存在する方を採用)。
+   * ファイル名・送信者を補完する(sender_emailはtransfers/transfer_groups両方に残っているためCOALESCE。
+   * recipient_emailはmigrations/006_recipient_cc.sqlでtransfer_group_recipientsに分離済みのため、
+   * To宛先をカンマ区切りで集約するサブクエリで取得する)。
    */
   async listRecent(limit = 200): Promise<AuditLogEntry[]> {
     const { rows } = await this.pool.query<AuditLogRow>(
       `SELECT al.id, al.created_at, al.event, al.actor, al.ip_address, al.detail, al.transfer_id, al.group_id,
               t.original_filename,
               COALESCE(t.sender_email, g.sender_email) AS sender_email,
-              COALESCE(t.recipient_email, g.recipient_email) AS recipient_email
+              (SELECT string_agg(email, ', ' ORDER BY email) FROM transfer_group_recipients
+                WHERE group_id = al.group_id AND kind = 'to') AS recipient_email
          FROM audit_logs al
          LEFT JOIN transfers t ON t.id = al.transfer_id
          LEFT JOIN transfer_groups g ON g.id = al.group_id

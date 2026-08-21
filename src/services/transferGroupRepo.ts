@@ -1,11 +1,10 @@
 import type { Pool } from 'pg';
-import type { TransferGroup } from '../domain/transfer';
+import type { GroupRecipient, TransferGroup } from '../domain/transfer';
 
 interface TransferGroupRow {
   id: string;
   sender_email: string;
   sender_name: string | null;
-  recipient_email: string;
   recipient_note: string | null;
   token_hash: string;
   expires_at: Date;
@@ -21,7 +20,6 @@ function toGroup(row: TransferGroupRow): TransferGroup {
     id: row.id,
     senderEmail: row.sender_email,
     senderName: row.sender_name,
-    recipientEmail: row.recipient_email,
     recipientNote: row.recipient_note,
     tokenHash: row.token_hash,
     expiresAt: row.expires_at,
@@ -36,7 +34,8 @@ function toGroup(row: TransferGroupRow): TransferGroup {
 export interface CreateTransferGroupInput {
   senderEmail: string;
   senderName: string;
-  recipientEmail: string;
+  to: string[];
+  cc: string[];
   recipientNote: string | null;
   tokenHash: string;
   expiresAt: Date;
@@ -50,25 +49,58 @@ export interface CreateTransferGroupInput {
 export class TransferGroupRepo {
   constructor(private readonly pool: Pool) {}
 
+  /** transfer_groups本体とTo/CC宛先(transfer_group_recipients)を1トランザクションで作成する。 */
   async create(input: CreateTransferGroupInput): Promise<TransferGroup> {
-    const { rows } = await this.pool.query<TransferGroupRow>(
-      `INSERT INTO transfer_groups
-         (sender_email, sender_name, recipient_email, recipient_note, token_hash, expires_at, max_downloads)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING *`,
-      [
-        input.senderEmail,
-        input.senderName,
-        input.recipientEmail,
-        input.recipientNote,
-        input.tokenHash,
-        input.expiresAt,
-        input.maxDownloads,
-      ],
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const { rows } = await client.query<TransferGroupRow>(
+        `INSERT INTO transfer_groups
+           (sender_email, sender_name, recipient_note, token_hash, expires_at, max_downloads)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING *`,
+        [input.senderEmail, input.senderName, input.recipientNote, input.tokenHash, input.expiresAt, input.maxDownloads],
+      );
+      const row = rows[0];
+      if (!row) throw new Error('Failed to create transfer group');
+
+      const recipients: Array<{ email: string; kind: 'to' | 'cc' }> = [
+        ...input.to.map((email) => ({ email, kind: 'to' as const })),
+        ...input.cc.map((email) => ({ email, kind: 'cc' as const })),
+      ];
+      for (const r of recipients) {
+        await client.query(
+          'INSERT INTO transfer_group_recipients (group_id, email, kind) VALUES ($1, $2, $3)',
+          [row.id, r.email, r.kind],
+        );
+      }
+
+      await client.query('COMMIT');
+      return toGroup(row);
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  async findRecipients(groupId: string): Promise<GroupRecipient[]> {
+    const { rows } = await this.pool.query<{ email: string; kind: 'to' | 'cc' }>(
+      'SELECT email, kind FROM transfer_group_recipients WHERE group_id = $1 ORDER BY kind, email',
+      [groupId],
     );
-    const row = rows[0];
-    if (!row) throw new Error('Failed to create transfer group');
-    return toGroup(row);
+    return rows.map((r) => ({ email: r.email, kind: r.kind }));
+  }
+
+  /** ダウンロードページで入力されたメールアドレスが、このグループの登録済みTo宛先かどうか(大文字小文字を無視)。 */
+  async isToRecipient(groupId: string, email: string): Promise<boolean> {
+    const { rows } = await this.pool.query(
+      `SELECT 1 FROM transfer_group_recipients
+        WHERE group_id = $1 AND kind = 'to' AND lower(email) = lower($2)`,
+      [groupId, email],
+    );
+    return rows.length > 0;
   }
 
   async findById(id: string): Promise<TransferGroup | null> {

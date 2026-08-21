@@ -15,12 +15,13 @@ export interface Transfer {
   createdAt: Date;
 }
 
-/** 送信(1回のフォーム送信=1〜複数ファイル)。ダウンロードURL・OTP認証・期限・DL回数はここに一本化する。 */
+/** 送信(1回のフォーム送信=1〜複数ファイル)。ダウンロードURL・OTP認証・期限・DL回数はここに一本化する。
+ *  宛先(To/CC)はtransfer_group_recipientsに分離されているため、ここには含まない
+ *  (取得にはTransferGroupRepo.findRecipientsを使う)。 */
 export interface TransferGroup {
   id: string;
   senderEmail: string;
   senderName: string | null;
-  recipientEmail: string;
   recipientNote: string | null;
   tokenHash: string;
   expiresAt: Date;
@@ -31,10 +32,19 @@ export interface TransferGroup {
   createdAt: Date;
 }
 
+export type RecipientKind = 'to' | 'cc';
+
+/** Toはダウンロード時OTP認証の対象。CCは通知メール(Ccヘッダ)を受け取るのみでダウンロード権限を持たない。 */
+export interface GroupRecipient {
+  email: string;
+  kind: RecipientKind;
+}
+
 export interface DownloadOtp {
   id: string;
   groupId: string;
   codeHash: string;
+  recipientEmail: string | null;
   expiresAt: Date;
   attemptCount: number;
   verifiedAt: Date | null;

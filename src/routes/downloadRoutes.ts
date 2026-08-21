@@ -11,6 +11,7 @@ import { hashDownloadToken } from '../services/tokenService';
 import type { TransferGroup } from '../domain/transfer';
 
 const verifySchema = z.object({ code: z.string().min(1).max(20) });
+const otpRequestSchema = z.object({ email: z.string().email() });
 
 function maskEmail(email: string): string {
   const [user, domain] = email.split('@');
@@ -49,11 +50,17 @@ export function createDownloadRouter(
       return;
     }
 
+    // Toが複数あるため、単一のマスク済みメールではなくヒントの配列を返す
+    // (受信者が「自分宛の送信か」を確認する用途。CCはダウンロード権限が無いためここには含めない)。
+    const toEmailsMasked = (await transferGroupRepo.findRecipients(group.id))
+      .filter((r) => r.kind === 'to')
+      .map((r) => maskEmail(r.email));
+
     if (!isUsable(group)) {
       res.json({
         status: group.revokedAt ? 'revoked' : 'expired',
         usable: false,
-        recipientEmailMasked: maskEmail(group.recipientEmail),
+        toEmailsMasked,
         expiresAt: group.expiresAt,
         downloadsRemaining: Math.max(0, group.maxDownloads - group.downloadCount),
       });
@@ -62,13 +69,13 @@ export function createDownloadRouter(
 
     const stillScanning = await transferRepo.countScanningInGroup(group.id);
     if (stillScanning > 0) {
-      res.json({ status: 'scanning', usable: false, recipientEmailMasked: maskEmail(group.recipientEmail) });
+      res.json({ status: 'scanning', usable: false, toEmailsMasked });
       return;
     }
 
     const cleanTransfers = await transferRepo.findCleanInGroup(group.id);
     if (cleanTransfers.length === 0) {
-      res.json({ status: 'infected', usable: false, recipientEmailMasked: maskEmail(group.recipientEmail) });
+      res.json({ status: 'infected', usable: false, toEmailsMasked });
       return;
     }
 
@@ -77,12 +84,18 @@ export function createDownloadRouter(
       usable: true,
       files: cleanTransfers.map((t) => ({ filename: t.originalFilename, sizeBytes: t.sizeBytes })),
       expiresAt: group.expiresAt,
-      recipientEmailMasked: maskEmail(group.recipientEmail),
+      toEmailsMasked,
       downloadsRemaining: Math.max(0, group.maxDownloads - group.downloadCount),
     });
   });
 
   router.post('/:token/otp', otpRateLimiter, async (req, res) => {
+    const parsed = otpRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'invalid_request' });
+      return;
+    }
+
     const tokenHash = hashDownloadToken(req.params.token as string);
     const group = await transferGroupRepo.findByTokenHash(tokenHash);
     if (!group || !isUsable(group)) {
@@ -90,17 +103,25 @@ export function createDownloadRouter(
       return;
     }
 
-    const code = await otpService.issue(group.id);
-    await mailer.sendOtpCode(group.recipientEmail, code, `${await countFilesLabel(transferRepo, group.id)}`);
+    const email = parsed.data.email;
+    const isAuthorized = await transferGroupRepo.isToRecipient(group.id, email);
+    if (!isAuthorized) {
+      res.status(403).json({ error: 'email_not_authorized' });
+      return;
+    }
+
+    const code = await otpService.issue(group.id, email);
+    await mailer.sendOtpCode(email, code, `${await countFilesLabel(transferRepo, group.id)}`);
     await auditLogRepo.log({
       transferId: null,
       groupId: group.id,
       event: 'otp_requested',
       actor: 'recipient',
       ipAddress: req.ip ?? null,
+      detail: { email },
     });
 
-    res.json({ ok: true, sentTo: maskEmail(group.recipientEmail) });
+    res.json({ ok: true, sentTo: maskEmail(email) });
   });
 
   router.post('/:token/verify', otpRateLimiter, async (req, res) => {
@@ -118,16 +139,16 @@ export function createDownloadRouter(
     }
 
     const result = await otpService.verify(group.id, parsed.data.code);
-    if (result !== 'ok') {
+    if (result.status !== 'ok') {
       await auditLogRepo.log({
         transferId: null,
         groupId: group.id,
         event: 'otp_failed',
         actor: 'recipient',
         ipAddress: req.ip ?? null,
-        detail: { result },
+        detail: { result: result.status, email: result.recipientEmail },
       });
-      res.status(400).json({ error: result });
+      res.status(400).json({ error: result.status });
       return;
     }
 
@@ -150,7 +171,7 @@ export function createDownloadRouter(
       event: 'downloaded',
       actor: 'recipient',
       ipAddress: req.ip ?? null,
-      detail: { fileCount: files.length },
+      detail: { fileCount: files.length, email: result.recipientEmail },
     });
 
     res.json({ files });

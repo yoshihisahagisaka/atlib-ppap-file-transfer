@@ -155,16 +155,18 @@ document.getElementById('upload-form').addEventListener('submit', async (ev) => 
     setProgress('送信準備中...');
 
     const senderName = document.getElementById('senderName').value;
-    const recipientEmail = document.getElementById('recipientEmail').value;
+    const to = document.getElementById('to').value;
+    const cc = document.getElementById('cc').value || undefined;
     const recipientNote = document.getElementById('recipientNote').value || undefined;
     const expiresInDays = Number(document.getElementById('expiresInDays').value);
 
     // グループ(1回のフォーム送信の入れ物)を先に作成する。ダウンロードURL・OTP認証・期限・
     // DL回数はこのグループに一本化されており、受信者は1つのリンク・1回のOTP認証でグループ内の
-    // 全ファイルにアクセスできる。
+    // 全ファイルにアクセスできる。to/ccはカンマ区切り文字列のままサーバーに送り、パース・検証は
+    // サーバー側(transferGroupRoutes.ts)で行う。
     const { groupId, downloadToken: groupToken } = await api('/api/transfer-groups', {
       method: 'POST',
-      body: JSON.stringify({ senderName, recipientEmail, recipientNote, expiresInDays }),
+      body: JSON.stringify({ senderName, to, cc, recipientNote, expiresInDays }),
     });
 
     // 1. 全ファイル分の送信レコード作成(署名付きアップロードURL発行)

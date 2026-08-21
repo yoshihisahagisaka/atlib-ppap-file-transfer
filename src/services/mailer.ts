@@ -19,10 +19,13 @@ export class Mailer {
   /**
    * 同じフォーム送信でアップロードされた複数ファイル(clean判定のもののみ)をまとめて1通・1リンクで
    * 通知する。1ファイルの送信でもこのメソッドを使う(filesが1件のリストになるだけ)。
-   * 受信者はこの1つのリンクにアクセスし、1回のOTP認証でファイル一覧から個別/一括ダウンロードできる。
+   * To/CCはSMTPのネイティブなTo/Ccヘッダで同送する(本文は同一)。ダウンロード権限の実際の境界は
+   * ここではなくOTP認証側にある — CCは本文のリンクを見えても、Toの受信箱宛にしか
+   * OTPコードが送られないため、自分でダウンロードを完了させることはできない。
    */
   async sendGroupDownloadLinkNotice(params: {
-    to: string;
+    to: string[];
+    cc: string[];
     senderEmail: string;
     senderName: string;
     note: string | null;
@@ -37,13 +40,15 @@ export class Mailer {
     await this.transporter.sendMail({
       from: this.fromHeader,
       to: params.to,
+      cc: params.cc.length > 0 ? params.cc : undefined,
       subject,
       text:
         `atLIB株式会社の${params.senderName}(${params.senderEmail})よりファイルが送信されました。\n\n` +
         `有効期限: ${expiresLabel}\n` +
         noteLine +
         `\n【送付ファイル】\n${fileList}\n\n` +
-        `以下のリンクからダウンロードしてください(確認コードの入力が必要です):\n` +
+        `以下のリンクからダウンロードしてください(確認コードの入力が必要です。宛先(To)欄に記載の` +
+        `ご自身のメールアドレスをダウンロードページで入力すると、その宛先に確認コードが届きます):\n` +
         `${params.downloadUrl}\n\n` +
         `※このメールに心当たりがない場合は破棄してください。返信は受け付けておりません。`,
     });

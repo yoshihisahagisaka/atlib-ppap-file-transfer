@@ -44,7 +44,9 @@ async function init() {
   try {
     const info = await api(`/api/d/${token}/status`);
     const parts = [];
-    if (info.recipientEmailMasked) parts.push(`送信先: ${info.recipientEmailMasked}`);
+    if (info.toEmailsMasked && info.toEmailsMasked.length > 0) {
+      parts.push(`送信先: ${info.toEmailsMasked.join(', ')}`);
+    }
     if (info.expiresAt) parts.push(`有効期限: ${new Date(info.expiresAt).toLocaleString('ja-JP')}`);
     if (typeof info.downloadsRemaining === 'number') parts.push(`残りダウンロード回数: ${info.downloadsRemaining}`);
     document.getElementById('info').innerHTML = parts.join('<br>');
@@ -64,14 +66,26 @@ async function init() {
 }
 
 document.getElementById('request-otp').addEventListener('click', async () => {
+  const email = document.getElementById('recipient-email').value.trim();
+  if (!email) {
+    setStatus('メールアドレスを入力してください。');
+    return;
+  }
   try {
     setStatus('送信中...');
-    const result = await api(`/api/d/${token}/otp`, { method: 'POST' });
+    const result = await api(`/api/d/${token}/otp`, {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
     document.getElementById('request-section').style.display = 'none';
     document.getElementById('otp-section').style.display = 'block';
     setStatus(`${result.sentTo} 宛に確認コードを送信しました。`);
   } catch (err) {
-    setStatus(`エラー: ${err.message}`);
+    const message =
+      err.status === 403
+        ? 'このメールアドレスは宛先として登録されていません。送信者に確認してください。'
+        : err.message;
+    setStatus(`エラー: ${message}`);
   }
 });
 

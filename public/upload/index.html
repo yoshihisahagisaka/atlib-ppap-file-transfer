@@ -109,7 +109,10 @@
 
     <form id="upload-form">
       <label>送信者氏名 <input type="text" id="senderName" required></label>
-      <label>受信者メールアドレス <input type="email" id="recipientEmail" required></label>
+      <label>宛先(To) <input type="text" id="to" placeholder="a@example.com, b@example.com" required></label>
+      <p class="hint">カンマ区切りで複数入力できます。宛先のいずれかが、ダウンロードページで自分のメールアドレスを入力して確認コードを受け取れます。</p>
+      <label>CC(任意) <input type="text" id="cc" placeholder="c@example.com"></label>
+      <p class="hint">CCの宛先には通知メールのみ届きます(ダウンロードはできません)。</p>
       <label>メッセージ(任意) <textarea id="recipientNote" rows="16">いつも大変お世話になっております。
 atLIB株式会社の{{送信者氏名}}です。
 
