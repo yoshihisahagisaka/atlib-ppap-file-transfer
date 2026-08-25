@@ -4,10 +4,13 @@
 
 **本番の`upload-service`(IAP配下、`https://ppap-upload.atlib.jp`)には一切影響しない。** 完全に独立したCloud Runサービスとして、既存の共有LB(`msp-iap-urlmap`)を経由せず、既定の`*.run.app` URLで直接検証する。
 
+**2026-08-25: `msp-zabbix`プロジェクトから`atlib-sso-verify-spike`プロジェクトへ移設済み。**
+`msp-zabbix`のOAuth同意画面（Google Auth Platform）はプロジェクト全体で1つしか存在せず、`msp-customer-portal`の管理画面をGoogle Workspace認証化する際に「内部限定」へ変更したところ、本サービスの外部アカウントログインも巻き添えで制限してしまう事故が発生した。再発防止のため、本サービスのみ独立したGCPプロジェクトへ切り出した（Cloud SQLは`msp-zabbix`の`msp-customer-portal-db`インスタンスをクロスプロジェクトで引き続き使用。データ移行はしていない）。以下の手順は移設後の構成に合わせて更新済み。
+
 ## 0. 前提
 
-- GCPプロジェクト: `msp-zabbix`(既存、変更なし)
-- Cloud SQLインスタンス: `msp-customer-portal-db`(既存)内に、**本番の`ppap_transfer`/`ppap_app`とは別**のデータベース`ppap_sso_verify`・ユーザー`ppap_sso_verify_app`を新規作成する(§3)
+- GCPプロジェクト: `atlib-sso-verify-spike`（2026-08-25〜。旧`msp-zabbix`から移設）
+- Cloud SQLインスタンス: `msp-zabbix`プロジェクトの`msp-customer-portal-db`（既存、クロスプロジェクト接続）内に、**本番の`ppap_transfer`/`ppap_app`とは別**のデータベース`ppap_sso_verify`・ユーザー`ppap_sso_verify_app`を作成済み(§3)。クロスプロジェクト接続には、Cloud Runサービスの実行用サービスアカウントに`msp-zabbix`プロジェクトの`roles/cloudsql.client`を付与しておく必要がある
 - atLIBのDNSドメイン(`atlib.jp`)がGoogleで取得されていることと、Microsoft Entra IDでログイン検証できるかは無関係。Microsoft 365 Business Standard契約があれば、そのMicrosoft 365テナントには自動的にEntra IDテナント(無料枠)が付随しており、基本的なOIDCサインイン(`openid`/`profile`/`email`スコープ)にP1/P2等の追加ライセンスは不要。
 
 ## 1. OAuthクライアント登録(手動・MFA付きログインが必要なため自動化しない)
@@ -36,22 +39,29 @@
 
 ```bash
 # 改行混入防止のため、必ずファイル経由で登録する(既存手順書と同じ注意点)
-gcloud secrets create ppap-sso-verify-google-client-secret --data-file=<改行なしのファイル>
-gcloud secrets create ppap-sso-verify-entra-client-secret --data-file=<改行なしのファイル>
-gcloud secrets create ppap-sso-verify-session-secret --data-file=<openssl rand -base64 32 等で生成したファイル>
-gcloud secrets create ppap-sso-verify-db-password --data-file=<改行なしのファイル>
+# --project=atlib-sso-verify-spike を明示すること(msp-zabbixには旧シークレットが別途残っている)
+gcloud secrets create ppap-sso-verify-google-client-secret --project=atlib-sso-verify-spike --data-file=<改行なしのファイル>
+gcloud secrets create ppap-sso-verify-entra-client-secret --project=atlib-sso-verify-spike --data-file=<改行なしのファイル>
+gcloud secrets create ppap-sso-verify-session-secret --project=atlib-sso-verify-spike --data-file=<openssl rand -base64 32 等で生成したファイル>
+gcloud secrets create ppap-sso-verify-db-password --project=atlib-sso-verify-spike --data-file=<改行なしのファイル>
 
-SA=135863453696-compute@developer.gserviceaccount.com
+# atlib-sso-verify-spikeのCloud Run実行用サービスアカウント(プロジェクト番号-compute@developer.gserviceaccount.com、
+# gcloud projects describe atlib-sso-verify-spike --format="value(projectNumber)" で確認可能)
+SA=<プロジェクト番号>-compute@developer.gserviceaccount.com
 for s in ppap-sso-verify-google-client-secret ppap-sso-verify-entra-client-secret ppap-sso-verify-session-secret ppap-sso-verify-db-password; do
-  gcloud secrets add-iam-policy-binding $s --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor
+  gcloud secrets add-iam-policy-binding $s --project=atlib-sso-verify-spike --member="serviceAccount:$SA" --role=roles/secretmanager.secretAccessor
 done
 ```
 
-## 3. DB分離(本番`ppap_transfer`とは別データベース)
+## 3. DB分離(本番`ppap_transfer`とは別データベース、`msp-zabbix`プロジェクトのインスタンスへクロスプロジェクト接続)
 
 ```bash
-gcloud sql databases create ppap_sso_verify --instance=msp-customer-portal-db
-gcloud sql users create ppap_sso_verify_app --instance=msp-customer-portal-db --password='<上記で生成したパスワード>'
+# --project=msp-zabbix (DBインスタンス自体はmsp-zabbixに残したまま。移行していない)
+gcloud sql databases create ppap_sso_verify --instance=msp-customer-portal-db --project=msp-zabbix
+gcloud sql users create ppap_sso_verify_app --instance=msp-customer-portal-db --project=msp-zabbix --password='<上記で生成したパスワード>'
+
+# atlib-sso-verify-spike側のサービスアカウントにmsp-zabbixのCloud SQLクライアント権限を付与
+gcloud projects add-iam-policy-binding msp-zabbix --member="serviceAccount:<プロジェクト番号>-compute@developer.gserviceaccount.com" --role="roles/cloudsql.client"
 ```
 
 **注意**: `migrations/runner.ts`は`migrations/`直下の`*.sql`を**ファイル名順に全て**適用する仕組みで、対象データベースごとの部分適用機能は無い(既存の`msp-customer-portal`と同じ方式)。そのため`ppap_sso_verify`に対して`npm run migrate:sso-verify`を実行すると、`001_init.sql`〜`004_group_download.sql`(本来`ppap_transfer`用のtransfers/transfer_groups/audit_logs等)も一緒に作成される。これ自体はデータが混入するわけではなく実害はないが、**`005_sso_verify_spike.sql`は逆に本番`ppap_transfer`側に誤って適用されるのを防ぐため`migrations/sso-verify-archive/`に退避してある**(共有ランナーの走査対象外)。`ppap_sso_verify`には既に適用済みなので影響はないが、このDBを再構築する場合はそのアーカイブ先のファイルを直接`psql`等で適用すること。
@@ -83,19 +93,21 @@ INSERT INTO sso_verify_customers (domain, company_name, seat_cap) VALUES
 ## 5. Cloud Runへのデプロイ(Phase B)
 
 ```bash
-gcloud builds submit --config=cloudbuild.sso-verify.yaml .
+gcloud builds submit --config=cloudbuild.sso-verify.yaml --project=atlib-sso-verify-spike .
 gcloud run deploy ppap-sso-verify-service \
-  --image=asia-northeast1-docker.pkg.dev/msp-zabbix/cloud-run-source-deploy/ppap-sso-verify-service \
-  --region=asia-northeast1 --allow-unauthenticated \
+  --image=asia-northeast1-docker.pkg.dev/atlib-sso-verify-spike/cloud-run-source-deploy/ppap-sso-verify-service \
+  --region=asia-northeast1 --project=atlib-sso-verify-spike --allow-unauthenticated \
   --add-cloudsql-instances=msp-zabbix:asia-northeast1:msp-customer-portal-db \
-  --set-env-vars=GCP_PROJECT_ID=msp-zabbix,DB_NAME=ppap_sso_verify,DB_USER=ppap_sso_verify_app,DB_SOCKET_PATH=/cloudsql/msp-zabbix:asia-northeast1:msp-customer-portal-db,STORAGE_BUCKET=unused-sso-verify-spike,SMTP_HOST=unused,SMTP_USER=unused,SMTP_FROM=unused@atlib.jp,SMTP_PASSWORD=unused,GOOGLE_OAUTH_CLIENT_ID=<...>,GOOGLE_OAUTH_REDIRECT_URI=PENDING,MICROSOFT_OAUTH_CLIENT_ID=<...>,MICROSOFT_OAUTH_TENANT_ID=<...>,MICROSOFT_OAUTH_REDIRECT_URI=PENDING \
+  --set-env-vars=GCP_PROJECT_ID=atlib-sso-verify-spike,DB_NAME=ppap_sso_verify,DB_USER=ppap_sso_verify_app,DB_SOCKET_PATH=/cloudsql/msp-zabbix:asia-northeast1:msp-customer-portal-db,STORAGE_BUCKET=unused-sso-verify-spike,SMTP_HOST=unused,SMTP_USER=unused,SMTP_FROM=unused@atlib.jp,SMTP_PASSWORD=unused,GOOGLE_OAUTH_CLIENT_ID=<...>,GOOGLE_OAUTH_REDIRECT_URI=PENDING,MICROSOFT_OAUTH_CLIENT_ID=<...>,MICROSOFT_OAUTH_TENANT_ID=<...>,MICROSOFT_OAUTH_REDIRECT_URI=PENDING \
   --set-secrets=DB_PASSWORD=ppap-sso-verify-db-password:latest,SSO_SESSION_SECRET=ppap-sso-verify-session-secret:latest,GOOGLE_OAUTH_CLIENT_SECRET=ppap-sso-verify-google-client-secret:latest,MICROSOFT_OAUTH_CLIENT_SECRET=ppap-sso-verify-entra-client-secret:latest
 ```
+
+**注意（2026-08-25の移設作業で判明）**: `--set-env-vars`だけで一括デプロイすると、`DB_PASSWORD`等のシークレット参照先(`src/config.ts`内のsecretId)が環境変数名と一致していない場合に気づきにくい。`gcloud run services describe`で実際に`valueFrom.secretKeyRef`が意図した値になっているか確認すること。存在しないシークレットを参照すると`PERMISSION_DENIED`（`NOT_FOUND`ではなく）というやや紛らわしいエラーになる。
 
 デプロイ後に表示される`*.run.app` URLを、Google Cloud ConsoleとMicrosoft Entra管理センター双方のリダイレクトURI設定に追加登録してから(localhostの登録は残したままでよい)、環境変数を実URLに更新する:
 
 ```bash
-gcloud run services update ppap-sso-verify-service --region=asia-northeast1 \
+gcloud run services update ppap-sso-verify-service --region=asia-northeast1 --project=atlib-sso-verify-spike \
   --update-env-vars=GOOGLE_OAUTH_REDIRECT_URI=https://<run-url>/auth/google/callback,MICROSOFT_OAUTH_REDIRECT_URI=https://<run-url>/auth/microsoft/callback
 ```
 
@@ -103,11 +115,11 @@ gcloud run services update ppap-sso-verify-service --region=asia-northeast1 \
 
 Phase Aと同じログイン確認をCloud Run上のURLで再実施したうえ、以下も確認する:
 ```bash
-# LBに一切手を加えていないことの確認
-gcloud compute url-maps describe msp-iap-urlmap  # 新規パスマッチャーが追加されていないこと
+# LBに一切手を加えていないことの確認(LBはmsp-zabbixプロジェクトのまま)
+gcloud compute url-maps describe msp-iap-urlmap --project=msp-zabbix  # 新規パスマッチャーが追加されていないこと
 
-# 本番DBと別データベースであることの確認
-gcloud sql databases list --instance=msp-customer-portal-db  # ppap_sso_verify が ppap_transfer と別に存在すること
+# 本番DBと別データベースであることの確認(DBインスタンスもmsp-zabbixプロジェクトのまま)
+gcloud sql databases list --instance=msp-customer-portal-db --project=msp-zabbix  # ppap_sso_verify が ppap_transfer と別に存在すること
 
 # LB非経由で直接200が返ることの確認
 curl -I https://<run-url>/sso-verify/
