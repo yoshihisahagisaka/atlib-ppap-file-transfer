@@ -47,7 +47,7 @@ async function load() {
     `;
     tbody.appendChild(tr);
   }
-  document.getElementById('log-table').style.display = 'table';
+  document.getElementById('log-table-wrap').style.display = 'block';
 }
 
 load().catch((err) => setStatus(`エラー: ${err.message}`));
