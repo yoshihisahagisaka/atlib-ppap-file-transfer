@@ -1,0 +1,13 @@
+import fs from 'node:fs/promises';
+import {createRequire} from 'node:module';
+const require=createRequire('C:/Users/YoshihisaHagisaka/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/package.json');const {FileBlob,SpreadsheetFile}=require('@oai/artifact-tool');
+const out='outputs/secure-send-seat-ranges-20261018',file=out+'/Secure_Send_PIRA_Pricing_Model.xlsx';
+const wb=await SpreadsheetFile.importXlsx(await FileBlob.load(file));
+wb.worksheets.getItem('PIRA料金比較').getRange('E5:E184').setNumberFormat('0.00');
+wb.worksheets.getItem('PIRA送信者推計').getRange('B52:D52').setNumberFormat('0.00');
+wb.worksheets.getItem('PIRA送信者推計').getRange('B13:B15').setNumberFormat('0%');
+wb.worksheets.getItem('人数レンジ設定').getRange('B13:D13').setNumberFormat('0%');
+wb.recalculate();
+const v=await wb.inspect({kind:'table',range:'PIRA料金比較!E93:M93',include:'values,formulas',tableMaxRows:1,tableMaxCols:9});await fs.writeFile(out+'/final-values-check.ndjson',v.ndjson);
+for(const [s,r,n]of [['PIRA料金比較','A4:M13','pira-profit'],['PIRA送信者推計','A19:D24','pira-distribution']])await fs.writeFile(out+'/'+n+'.png',new Uint8Array(await (await wb.render({sheetName:s,range:r,scale:1})).arrayBuffer()));
+await (await SpreadsheetFile.exportXlsx(wb)).save(file);console.log(v.ndjson);

@@ -1,0 +1,6 @@
+{
+  "cases": 180,
+  "sourcePR": "yoshihisahagisaka/atlib-corporate-site#14",
+  "sourceSHA": "40b7610f78e4e92702150cc73633688795bed459",
+  "errors": "{\"kind\":\"notice\",\"message\":\"Cell search matched 0 entries.\"}"
+}

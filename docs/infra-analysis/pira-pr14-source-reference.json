@@ -1,0 +1,16 @@
+{
+  "repository": "yoshihisahagisaka/atlib-corporate-site",
+  "pullRequest": 14,
+  "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/pull/14",
+  "headSHA": "40b7610f78e4e92702150cc73633688795bed459",
+  "stateAtRead": "open, unmerged",
+  "readDateJST": "2026-10-18",
+  "nationalEnterpriseCounts": [2256386,581301,323929,202148,65941,64887],
+  "nationalEmployeeBands": ["1-4","5-9","10-19","20-49","50-99","100+"],
+  "evidenceType": "National benchmark quoted by PR14, not PIRA actuals",
+  "piraIndustryWeights": null,
+  "piraEmployeeSizeDistribution": null,
+  "piraActualWindowsPCDistribution": null,
+  "piraActualPaidSenderDistribution": null,
+  "note": "Windows PC scenarios in PR14 are hypotheses and are not used to convert employees into paid senders. Sender ratios and employee representatives in this analysis are separate new assumptions."
+}

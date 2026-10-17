@@ -1,3 +1,5 @@
+> 現在の料金感度分析: [人数レンジ・基本料金のみ配分・PIRA仮説統合](secure-send-seat-range-pira-pricing-20261018.md)。以下は旧人数パック/売上全体配分の履歴比較。正式価格は未決定。
+
 > 2026-10-18更新: [実請求照合・構成比較更新](secure-send-billing-reconciliation-20261018.md)を優先。以下は旧仮定による履歴評価。請求校正後のExcel・216ケースはPR #3で更新。
 
 # atLIB Secure Send 原価分析・料金体系検証
