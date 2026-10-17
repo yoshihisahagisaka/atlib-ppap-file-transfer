@@ -59,8 +59,19 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\collect-secure-send-re
 
 ## 参照URL
 
+## Monitoring初回取得の結果と修正（06:08 JST）
+
+初回のMonitoring取得では19 scope/metricのすべてがDescriptorUnavailableOrUnsupported、HTTP400。timeSeries取得には到達しておらず、利用実績は取得できていない。最終「completed」表示を成功と解釈してはならない。
+
+指標名のslashをget resource pathにencodeする方式を廃し、metricDescriptors.listのexact-match filterへ変更。HTTP400時はAPI error messageのみを記録して最初の失敗で停止する。完了表示はCollected/NoData件数へ変更し、実データ0件なら明示する。修正版はURI/filter形式を確認するmockで76クエリを検証したが、実APIの成功は再取得待ち。
+
+再取得は既存の失敗結果を保全するため別ディレクトリへ保存する。クラウド設定変更はしていない。
+
+## 追加参照URL
+
 - 実設定：同ディレクトリの5 JSON。
 - Shared-coreのSLA： https://docs.cloud.google.com/sql/docs/postgres/instance-settings
 - gcloud projection： https://docs.cloud.google.com/sdk/gcloud/reference/topic/projections
+- metricDescriptors.list： https://docs.cloud.google.com/monitoring/api/ref_v3/rest/v3/projects.metricDescriptors/list
 
 Production/DB/インフラ/料金は変更していない。新しい構成情報で評価根拠を更新した段階で、原価確定・商用Goではない。

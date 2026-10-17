@@ -45,7 +45,20 @@ function Get-MonitoringJson {
       Save-Checkpoint
       throw "Monitoring HTTP $httpStatus. Stopped without enabling APIs or changing permissions. Check monitoring.timeSeries.list and metricDescriptors.get."
     }
-    return [pscustomobject]@{ CollectionError=$true; HttpStatus=$httpStatus }
+    $safeMessage = 'Monitoring request failed.'
+    if ($_.ErrorDetails.Message) {
+      try {
+        $errorBody = $_.ErrorDetails.Message | ConvertFrom-Json
+        if ($errorBody.error.message) { $safeMessage = [string]$errorBody.error.message }
+      } catch { }
+    }
+    if ($safeMessage.Length -gt 600) { $safeMessage=$safeMessage.Substring(0,600) }
+    if ($httpStatus -eq 400) {
+      $results.Add([pscustomobject]@{ status='RequestConstructionError'; httpStatus=400; message=$safeMessage })
+      Save-Checkpoint
+      throw "Monitoring HTTP 400: $safeMessage"
+    }
+    return [pscustomobject]@{ CollectionError=$true; HttpStatus=$httpStatus; Message=$safeMessage }
   }
 }
 
@@ -68,8 +81,17 @@ try {
   foreach ($query in $queries) {
     $metricType = $query.Metric
     if (-not $descriptorCache.ContainsKey($metricType)) {
-      $encodedType = [Uri]::EscapeDataString($metricType)
-      $descriptorCache[$metricType] = Get-MonitoringJson -Uri "$baseUrl/metricDescriptors/$encodedType"
+      # Exact-match list avoids encoding '/' inside the get-method resource name.
+      $descriptorFilter = [Uri]::EscapeDataString(('metric.type = "{0}"' -f $metricType))
+      $descriptorResponse = Get-MonitoringJson -Uri ($baseUrl+'/metricDescriptors?filter='+$descriptorFilter+'&pageSize=10')
+      if ($descriptorResponse.CollectionError) {
+        $descriptorCache[$metricType]=$descriptorResponse
+      } else {
+        $matches = @($descriptorResponse.metricDescriptors | Where-Object { $_.type -eq $metricType })
+        if ($matches.Count -ne 1) {
+          $descriptorCache[$metricType]=[pscustomobject]@{ CollectionError=$true; HttpStatus=404; Message='Exact metric descriptor not found.' }
+        } else { $descriptorCache[$metricType]=$matches[0] }
+      }
     }
     $descriptor = $descriptorCache[$metricType]
     if ($descriptor.CollectionError -or $descriptor.valueType -eq 'DISTRIBUTION' -or $descriptor.metricKind -eq 'CUMULATIVE') {
@@ -109,7 +131,11 @@ try {
       Write-Output ("{0}: {1} {2} {3}" -f $status,$query.Scope,$period.Name,$metricType)
     }
   }
-  Write-Output 'Read-only Monitoring collection completed. Billing CSV and business-level SQL aggregates remain separate.'
+  $collectedCount=@($results.ToArray() | Where-Object status -eq 'Collected').Count
+  $emptyCount=@($results.ToArray() | Where-Object status -eq 'NoData').Count
+  Write-Output "Monitoring results: Collected=$collectedCount; NoData=$emptyCount"
+  if ($collectedCount -eq 0) { Write-Output 'No usage data collected. Inspect metrics-summary.json; missing data is not zero.' }
+  Write-Output 'Billing CSV and business-level SQL aggregates remain separate.'
 } finally {
   $headers.Clear(); $monitoringToken=$null; $tokenLines=$null
 }
