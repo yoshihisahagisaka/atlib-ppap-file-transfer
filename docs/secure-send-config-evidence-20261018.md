@@ -41,7 +41,23 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\collect-secure-send-re
 
 請求実績は別途Cloud Billing Reports/Cost table/既存BQ exportから、7〜9月＋10月部分月を区別して取得する。今回SQLの小さいtierが判明しても、前回のDB配賦予算6,000円を実測値に書き換えない。
 
-## 出典
+## 追加確認：2026-10-18 06:03 JST
+
+修正版による3 JSONを `docs/evidence/20261018-config/` に追加した。
+
+| サービス | CPU上限 | メモリ上限 |
+| --- | --- | --- |
+| upload | 1000m = 1 vCPU | 512Mi |
+| download | 1000m = 1 vCPU | 512Mi |
+| scan | 1000m = 1 vCPU | 2Gi |
+
+前回の原価モデルのCPU・memory仮定は現在構成と一致。構成の仮定が確認済みに変わっただけで、請求額・CPU利用率・稼働時間・scan秒が実測されたわけではない。cpu-throttlingの明示値は取得annotationsにないため、課金SKU/billing modeの照合は残す。初回配列projection漏れは解消。
+
+次の `collect-secure-send-metrics-readonly.ps1` はMonitoring APIへGETのみを行い、対象3サービス・専用bucket・共有SQL instanceの時間単位の数値集計を保存する。対象は2026年7〜9月＋10月部分月。既存gcloudログインのaccess tokenをプロセス内だけで使用し、ファイル保存・出力・共有はしない。secret、object、Logging本文、DB行を取得しない。SQLは共有instance全体でありSecure Sendへの無条件配賦は不可。GCS送信bytesはscan/internal readを含み得るため、そのままInternet課金量とは扱わない。空データを0としない。
+
+76件の有限クエリをオフラインmockで検証し、tokenが出力ファイルへ残らないことを確認。実APIでは未実行。401/403時は途中集計を保存して停止し、API有効化やIAM変更をしない。Monitoringの既存閲覧権限が必要。SQL集計と請求CSVは別途取得する。
+
+## 参照URL
 
 - 実設定：同ディレクトリの5 JSON。
 - Shared-coreのSLA： https://docs.cloud.google.com/sql/docs/postgres/instance-settings
