@@ -1,0 +1,137 @@
+[
+  {
+    "scenario": "低位",
+    "senderRatio": 0.1,
+    "shares": [
+      0.9625627254912733,
+      0.018869441697342636,
+      0.01856783281138399,
+      0,
+      0
+    ],
+    "detail": [
+      {
+        "employees": 3,
+        "senders": 1,
+        "weight": 0.6456793811695328
+      },
+      {
+        "employees": 7,
+        "senders": 1,
+        "weight": 0.16634302373495963
+      },
+      {
+        "employees": 14,
+        "senders": 2,
+        "weight": 0.09269436889914473
+      },
+      {
+        "employees": 34,
+        "senders": 4,
+        "weight": 0.05784595168763621
+      },
+      {
+        "employees": 74,
+        "senders": 8,
+        "weight": 0.018869441697342636
+      },
+      {
+        "employees": 150,
+        "senders": 15,
+        "weight": 0.01856783281138399
+      }
+    ],
+    "pricedShare": 1,
+    "averagePricedSenders": 1.658267975202828
+  },
+  {
+    "scenario": "基準",
+    "senderRatio": 0.25,
+    "shares": [
+      0.9047167738036371,
+      0.05784595168763621,
+      0.018869441697342636,
+      0.01856783281138399,
+      0
+    ],
+    "detail": [
+      {
+        "employees": 3,
+        "senders": 1,
+        "weight": 0.6456793811695328
+      },
+      {
+        "employees": 7,
+        "senders": 2,
+        "weight": 0.16634302373495963
+      },
+      {
+        "employees": 14,
+        "senders": 4,
+        "weight": 0.09269436889914473
+      },
+      {
+        "employees": 34,
+        "senders": 9,
+        "weight": 0.05784595168763621
+      },
+      {
+        "employees": 74,
+        "senders": 19,
+        "weight": 0.018869441697342636
+      },
+      {
+        "employees": 150,
+        "senders": 38,
+        "weight": 0.01856783281138399
+      }
+    ],
+    "pricedShare": 1,
+    "averagePricedSenders": 2.9338535085068593
+  },
+  {
+    "scenario": "高位",
+    "senderRatio": 0.5,
+    "shares": [
+      0.8120224049044924,
+      0.09269436889914473,
+      0.05784595168763621,
+      0.018869441697342636,
+      0.01856783281138399
+    ],
+    "detail": [
+      {
+        "employees": 3,
+        "senders": 2,
+        "weight": 0.6456793811695328
+      },
+      {
+        "employees": 7,
+        "senders": 4,
+        "weight": 0.16634302373495963
+      },
+      {
+        "employees": 14,
+        "senders": 7,
+        "weight": 0.09269436889914473
+      },
+      {
+        "employees": 34,
+        "senders": 17,
+        "weight": 0.05784595168763621
+      },
+      {
+        "employees": 74,
+        "senders": 37,
+        "weight": 0.018869441697342636
+      },
+      {
+        "employees": 150,
+        "senders": 75,
+        "weight": 0.01856783281138399
+      }
+    ],
+    "pricedShare": 0.981432167188616,
+    "averagePricedSenders": 4.368250913708322
+  }
+]

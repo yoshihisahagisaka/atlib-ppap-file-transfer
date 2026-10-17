@@ -1,0 +1,683 @@
+[
+  {
+    "pace": 1,
+    "maxOperatingFunding": 238444.57343535937,
+    "sumLosses": 238444.57343535937,
+    "firstPositiveMonth": 18,
+    "cumulativeRecoveryMonth": 33,
+    "cumulativeAt12": -214537.60383905235,
+    "cumulativeAt36": 122597.96084577922,
+    "months": [
+      {
+        "month": 1,
+        "companies": 1,
+        "profit": -28028.965245838037,
+        "cumulative": -28028.965245838037
+      },
+      {
+        "month": 2,
+        "companies": 2,
+        "profit": -26046.995865368277,
+        "cumulative": -54075.961111206314
+      },
+      {
+        "month": 3,
+        "companies": 3,
+        "profit": -24065.026484898517,
+        "cumulative": -78140.98759610482
+      },
+      {
+        "month": 4,
+        "companies": 4,
+        "profit": -22083.057104428757,
+        "cumulative": -100224.04470053359
+      },
+      {
+        "month": 5,
+        "companies": 5,
+        "profit": -20101.087723958997,
+        "cumulative": -120325.13242449259
+      },
+      {
+        "month": 6,
+        "companies": 6,
+        "profit": -18119.118343489237,
+        "cumulative": -138444.25076798184
+      },
+      {
+        "month": 7,
+        "companies": 7,
+        "profit": -16137.148963019477,
+        "cumulative": -154581.39973100132
+      },
+      {
+        "month": 8,
+        "companies": 8,
+        "profit": -14155.179582549717,
+        "cumulative": -168736.57931355105
+      },
+      {
+        "month": 9,
+        "companies": 9,
+        "profit": -12173.210202079958,
+        "cumulative": -180909.789515631
+      },
+      {
+        "month": 10,
+        "companies": 10,
+        "profit": -10191.240821610198,
+        "cumulative": -191101.03033724122
+      },
+      {
+        "month": 11,
+        "companies": 11,
+        "profit": -12709.271441140438,
+        "cumulative": -203810.30177838166
+      },
+      {
+        "month": 12,
+        "companies": 12,
+        "profit": -10727.302060670678,
+        "cumulative": -214537.60383905235
+      },
+      {
+        "month": 13,
+        "companies": 13,
+        "profit": -8745.332680200918,
+        "cumulative": -223282.93651925327
+      },
+      {
+        "month": 14,
+        "companies": 14,
+        "profit": -6763.363299731158,
+        "cumulative": -230046.29981898444
+      },
+      {
+        "month": 15,
+        "companies": 15,
+        "profit": -4781.393919261398,
+        "cumulative": -234827.69373824584
+      },
+      {
+        "month": 16,
+        "companies": 16,
+        "profit": -2799.424538791638,
+        "cumulative": -237627.1182770375
+      },
+      {
+        "month": 17,
+        "companies": 17,
+        "profit": -817.4551583218781,
+        "cumulative": -238444.57343535937
+      },
+      {
+        "month": 18,
+        "companies": 18,
+        "profit": 1164.5142221478818,
+        "cumulative": -237280.0592132115
+      },
+      {
+        "month": 19,
+        "companies": 19,
+        "profit": 3146.4836026176417,
+        "cumulative": -234133.57561059386
+      },
+      {
+        "month": 20,
+        "companies": 20,
+        "profit": 5128.452983087402,
+        "cumulative": -229005.12262750647
+      },
+      {
+        "month": 21,
+        "companies": 21,
+        "profit": 7110.422363557162,
+        "cumulative": -221894.70026394931
+      },
+      {
+        "month": 22,
+        "companies": 22,
+        "profit": 9092.391744026922,
+        "cumulative": -212802.3085199224
+      },
+      {
+        "month": 23,
+        "companies": 23,
+        "profit": 11074.361124496681,
+        "cumulative": -201727.94739542573
+      },
+      {
+        "month": 24,
+        "companies": 24,
+        "profit": 13056.330504966441,
+        "cumulative": -188671.6168904593
+      },
+      {
+        "month": 25,
+        "companies": 25,
+        "profit": 15038.299885436201,
+        "cumulative": -173633.3170050231
+      },
+      {
+        "month": 26,
+        "companies": 26,
+        "profit": 17020.26926590596,
+        "cumulative": -156613.04773911714
+      },
+      {
+        "month": 27,
+        "companies": 27,
+        "profit": 19002.23864637572,
+        "cumulative": -137610.80909274143
+      },
+      {
+        "month": 28,
+        "companies": 28,
+        "profit": 20984.20802684548,
+        "cumulative": -116626.60106589596
+      },
+      {
+        "month": 29,
+        "companies": 29,
+        "profit": 22966.17740731524,
+        "cumulative": -93660.42365858072
+      },
+      {
+        "month": 30,
+        "companies": 30,
+        "profit": 24948.146787785,
+        "cumulative": -68712.27687079573
+      },
+      {
+        "month": 31,
+        "companies": 31,
+        "profit": 26930.11616825476,
+        "cumulative": -41782.16070254097
+      },
+      {
+        "month": 32,
+        "companies": 32,
+        "profit": 28912.08554872452,
+        "cumulative": -12870.075153816448
+      },
+      {
+        "month": 33,
+        "companies": 33,
+        "profit": 30894.05492919428,
+        "cumulative": 18023.979775377833
+      },
+      {
+        "month": 34,
+        "companies": 34,
+        "profit": 32876.02430966404,
+        "cumulative": 50900.00408504187
+      },
+      {
+        "month": 35,
+        "companies": 35,
+        "profit": 34857.9936901338,
+        "cumulative": 85757.99777517567
+      },
+      {
+        "month": 36,
+        "companies": 36,
+        "profit": 36839.96307060356,
+        "cumulative": 122597.96084577922
+      }
+    ]
+  },
+  {
+    "pace": 3,
+    "maxOperatingFunding": 69866.0510103998,
+    "sumLosses": 69866.0510103998,
+    "firstPositiveMonth": 6,
+    "cumulativeRecoveryMonth": 11,
+    "cumulativeAt12": 63149.619514230246,
+    "cumulativeAt36": 2665081.1756314994,
+    "months": [
+      {
+        "month": 1,
+        "companies": 3,
+        "profit": -24065.026484898517,
+        "cumulative": -24065.026484898517
+      },
+      {
+        "month": 2,
+        "companies": 6,
+        "profit": -18119.118343489237,
+        "cumulative": -42184.144828387754
+      },
+      {
+        "month": 3,
+        "companies": 9,
+        "profit": -12173.210202079958,
+        "cumulative": -54357.35503046771
+      },
+      {
+        "month": 4,
+        "companies": 12,
+        "profit": -10727.302060670678,
+        "cumulative": -65084.65709113839
+      },
+      {
+        "month": 5,
+        "companies": 15,
+        "profit": -4781.393919261398,
+        "cumulative": -69866.0510103998
+      },
+      {
+        "month": 6,
+        "companies": 18,
+        "profit": 1164.5142221478818,
+        "cumulative": -68701.53678825192
+      },
+      {
+        "month": 7,
+        "companies": 21,
+        "profit": 7110.422363557162,
+        "cumulative": -61591.11442469476
+      },
+      {
+        "month": 8,
+        "companies": 24,
+        "profit": 13056.330504966441,
+        "cumulative": -48534.78391972832
+      },
+      {
+        "month": 9,
+        "companies": 27,
+        "profit": 19002.23864637572,
+        "cumulative": -29532.545273352596
+      },
+      {
+        "month": 10,
+        "companies": 30,
+        "profit": 24948.146787785,
+        "cumulative": -4584.398485567595
+      },
+      {
+        "month": 11,
+        "companies": 33,
+        "profit": 30894.05492919428,
+        "cumulative": 26309.656443626685
+      },
+      {
+        "month": 12,
+        "companies": 36,
+        "profit": 36839.96307060356,
+        "cumulative": 63149.619514230246
+      },
+      {
+        "month": 13,
+        "companies": 39,
+        "profit": 42785.87121201284,
+        "cumulative": 105935.4907262431
+      },
+      {
+        "month": 14,
+        "companies": 42,
+        "profit": 48731.77935342212,
+        "cumulative": 154667.2700796652
+      },
+      {
+        "month": 15,
+        "companies": 45,
+        "profit": 54677.6874948314,
+        "cumulative": 209344.9575744966
+      },
+      {
+        "month": 16,
+        "companies": 48,
+        "profit": 60623.59563624068,
+        "cumulative": 269968.5532107373
+      },
+      {
+        "month": 17,
+        "companies": 51,
+        "profit": 66569.50377764995,
+        "cumulative": 336538.05698838725
+      },
+      {
+        "month": 18,
+        "companies": 54,
+        "profit": 72515.41191905923,
+        "cumulative": 409053.4689074465
+      },
+      {
+        "month": 19,
+        "companies": 57,
+        "profit": 78461.32006046851,
+        "cumulative": 487514.788967915
+      },
+      {
+        "month": 20,
+        "companies": 60,
+        "profit": 84407.22820187779,
+        "cumulative": 571922.0171697928
+      },
+      {
+        "month": 21,
+        "companies": 63,
+        "profit": 90353.13634328707,
+        "cumulative": 662275.1535130799
+      },
+      {
+        "month": 22,
+        "companies": 66,
+        "profit": 96299.04448469635,
+        "cumulative": 758574.1979977762
+      },
+      {
+        "month": 23,
+        "companies": 69,
+        "profit": 102244.95262610563,
+        "cumulative": 860819.1506238818
+      },
+      {
+        "month": 24,
+        "companies": 72,
+        "profit": 108190.86076751491,
+        "cumulative": 969010.0113913968
+      },
+      {
+        "month": 25,
+        "companies": 75,
+        "profit": 114136.76890892419,
+        "cumulative": 1083146.780300321
+      },
+      {
+        "month": 26,
+        "companies": 78,
+        "profit": 120082.67705033347,
+        "cumulative": 1203229.4573506545
+      },
+      {
+        "month": 27,
+        "companies": 81,
+        "profit": 126028.58519174275,
+        "cumulative": 1329258.0425423973
+      },
+      {
+        "month": 28,
+        "companies": 84,
+        "profit": 131974.49333315203,
+        "cumulative": 1461232.5358755493
+      },
+      {
+        "month": 29,
+        "companies": 87,
+        "profit": 137920.4014745613,
+        "cumulative": 1599152.9373501106
+      },
+      {
+        "month": 30,
+        "companies": 90,
+        "profit": 143866.3096159706,
+        "cumulative": 1743019.2469660812
+      },
+      {
+        "month": 31,
+        "companies": 93,
+        "profit": 149812.21775737987,
+        "cumulative": 1892831.464723461
+      },
+      {
+        "month": 32,
+        "companies": 96,
+        "profit": 155758.12589878915,
+        "cumulative": 2048589.5906222502
+      },
+      {
+        "month": 33,
+        "companies": 99,
+        "profit": 161704.03404019843,
+        "cumulative": 2210293.6246624487
+      },
+      {
+        "month": 34,
+        "companies": 102,
+        "profit": 145649.9421816077,
+        "cumulative": 2355943.5668440564
+      },
+      {
+        "month": 35,
+        "companies": 105,
+        "profit": 151595.850323017,
+        "cumulative": 2507539.417167073
+      },
+      {
+        "month": 36,
+        "companies": 108,
+        "profit": 157541.75846442627,
+        "cumulative": 2665081.1756314994
+      }
+    ]
+  },
+  {
+    "pace": 10,
+    "maxOperatingFunding": 10191.240821610198,
+    "sumLosses": 10191.240821610198,
+    "firstPositiveMonth": 2,
+    "cumulativeRecoveryMonth": 3,
+    "cumulativeAt12": 1092304.901250719,
+    "cumulativeAt36": 11390022.427381523,
+    "months": [
+      {
+        "month": 1,
+        "companies": 10,
+        "profit": -10191.240821610198,
+        "cumulative": -10191.240821610198
+      },
+      {
+        "month": 2,
+        "companies": 20,
+        "profit": 5128.452983087402,
+        "cumulative": -5062.787838522796
+      },
+      {
+        "month": 3,
+        "companies": 30,
+        "profit": 24948.146787785,
+        "cumulative": 19885.358949262205
+      },
+      {
+        "month": 4,
+        "companies": 40,
+        "profit": 44767.8405924826,
+        "cumulative": 64653.199541744805
+      },
+      {
+        "month": 5,
+        "companies": 50,
+        "profit": 64587.5343971802,
+        "cumulative": 129240.733938925
+      },
+      {
+        "month": 6,
+        "companies": 60,
+        "profit": 84407.22820187779,
+        "cumulative": 213647.9621408028
+      },
+      {
+        "month": 7,
+        "companies": 70,
+        "profit": 104226.92200657539,
+        "cumulative": 317874.88414737815
+      },
+      {
+        "month": 8,
+        "companies": 80,
+        "profit": 124046.61581127299,
+        "cumulative": 441921.49995865114
+      },
+      {
+        "month": 9,
+        "companies": 90,
+        "profit": 143866.3096159706,
+        "cumulative": 585787.8095746217
+      },
+      {
+        "month": 10,
+        "companies": 100,
+        "profit": 163686.0034206682,
+        "cumulative": 749473.8129952899
+      },
+      {
+        "month": 11,
+        "companies": 110,
+        "profit": 161505.6972253658,
+        "cumulative": 910979.5102206557
+      },
+      {
+        "month": 12,
+        "companies": 120,
+        "profit": 181325.3910300634,
+        "cumulative": 1092304.901250719
+      },
+      {
+        "month": 13,
+        "companies": 130,
+        "profit": 201145.084834761,
+        "cumulative": 1293449.98608548
+      },
+      {
+        "month": 14,
+        "companies": 140,
+        "profit": 220964.7786394586,
+        "cumulative": 1514414.7647249387
+      },
+      {
+        "month": 15,
+        "companies": 150,
+        "profit": 240784.47244415618,
+        "cumulative": 1755199.2371690948
+      },
+      {
+        "month": 16,
+        "companies": 160,
+        "profit": 260604.16624885378,
+        "cumulative": 2015803.4034179486
+      },
+      {
+        "month": 17,
+        "companies": 170,
+        "profit": 280423.8600535514,
+        "cumulative": 2296227.2634715
+      },
+      {
+        "month": 18,
+        "companies": 180,
+        "profit": 300243.553858249,
+        "cumulative": 2596470.817329749
+      },
+      {
+        "month": 19,
+        "companies": 190,
+        "profit": 320063.2476629466,
+        "cumulative": 2916534.0649926956
+      },
+      {
+        "month": 20,
+        "companies": 200,
+        "profit": 339882.9414676442,
+        "cumulative": 3256417.0064603398
+      },
+      {
+        "month": 21,
+        "companies": 210,
+        "profit": 359702.6352723418,
+        "cumulative": 3616119.6417326815
+      },
+      {
+        "month": 22,
+        "companies": 220,
+        "profit": 379522.3290770394,
+        "cumulative": 3995641.970809721
+      },
+      {
+        "month": 23,
+        "companies": 230,
+        "profit": 399342.022881737,
+        "cumulative": 4394983.993691457
+      },
+      {
+        "month": 24,
+        "companies": 240,
+        "profit": 419161.7166864346,
+        "cumulative": 4814145.7103778925
+      },
+      {
+        "month": 25,
+        "companies": 250,
+        "profit": 438981.4104911322,
+        "cumulative": 5253127.120869025
+      },
+      {
+        "month": 26,
+        "companies": 260,
+        "profit": 458801.1042958298,
+        "cumulative": 5711928.225164855
+      },
+      {
+        "month": 27,
+        "companies": 270,
+        "profit": 478620.7981005274,
+        "cumulative": 6190549.023265382
+      },
+      {
+        "month": 28,
+        "companies": 280,
+        "profit": 498440.491905225,
+        "cumulative": 6688989.515170608
+      },
+      {
+        "month": 29,
+        "companies": 290,
+        "profit": 518260.1857099226,
+        "cumulative": 7207249.70088053
+      },
+      {
+        "month": 30,
+        "companies": 300,
+        "profit": 538079.8795146202,
+        "cumulative": 7745329.580395151
+      },
+      {
+        "month": 31,
+        "companies": 310,
+        "profit": 557899.5733193178,
+        "cumulative": 8303229.153714469
+      },
+      {
+        "month": 32,
+        "companies": 320,
+        "profit": 577719.2671240154,
+        "cumulative": 8880948.420838485
+      },
+      {
+        "month": 33,
+        "companies": 330,
+        "profit": 597538.960928713,
+        "cumulative": 9478487.381767198
+      },
+      {
+        "month": 34,
+        "companies": 340,
+        "profit": 617358.6547334106,
+        "cumulative": 10095846.036500609
+      },
+      {
+        "month": 35,
+        "companies": 350,
+        "profit": 637178.3485381082,
+        "cumulative": 10733024.385038717
+      },
+      {
+        "month": 36,
+        "companies": 360,
+        "profit": 656998.0423428058,
+        "cumulative": 11390022.427381523
+      }
+    ]
+  }
+]

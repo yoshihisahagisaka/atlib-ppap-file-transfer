@@ -1,0 +1,6 @@
+{
+  "cases": 240,
+  "tariffChecks": 250,
+  "errors": "{\"kind\":\"notice\",\"message\":\"Cell search matched 0 entries.\"}",
+  "capacityScale": 0.08533333333333333
+}
