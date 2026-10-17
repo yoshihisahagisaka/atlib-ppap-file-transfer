@@ -1,0 +1,6 @@
+{
+  "cases": 480,
+  "baseFundingNeed": 69866.0510103998,
+  "fastFundingNeed": 10191.240821610198,
+  "errors": "{\"kind\":\"notice\",\"message\":\"Cell search matched 0 entries.\"}"
+}
