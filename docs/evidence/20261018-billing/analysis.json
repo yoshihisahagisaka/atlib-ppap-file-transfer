@@ -1,0 +1,168 @@
+{
+  "source": [
+    {
+      "name": "請求先アカウント_Reports、2026-07-01 — 2026-09-30.csv",
+      "libraryFileId": "libfile_ceae161333f88191b3ec86f70899a900",
+      "grain": "SKU / whole quarter"
+    },
+    {
+      "name": "請求先アカウント_Reports、2026-10-01 — 2026-10-31.csv",
+      "libraryFileId": "libfile_0178b7b688d081919ef3d8ea32579b4b",
+      "grain": "service / partial October"
+    }
+  ],
+  "warning": "CSV contains no project/resource/month columns. User identifies shared project; filter cannot be independently verified. Amounts are report subtotals, not settled payment. Rates inferred from rounded gross JPY and displayed usage; approximate, not contracted tariff.",
+  "totals": [
+    {
+      "detailSum": 42818.18761699999,
+      "reportedSubtotal": 42818.187617,
+      "reportedTotal": 42818.294245
+    },
+    {
+      "detailSum": 18761.21253100001,
+      "reportedSubtotal": 18761.212531,
+      "reportedTotal": 18761.212531
+    }
+  ],
+  "services": [
+    [
+      {
+        "service": "Compute Engine",
+        "gross": 50602,
+        "net": 24432.66044800001
+      },
+      {
+        "service": "Cloud Monitoring",
+        "gross": 8125,
+        "net": 5080.545401
+      },
+      {
+        "service": "Networking",
+        "gross": 18041,
+        "net": 3857.1839500000006
+      },
+      {
+        "service": "Cloud Run",
+        "gross": 8360,
+        "net": 5388.879989
+      },
+      {
+        "service": "Cloud SQL",
+        "gross": 6607,
+        "net": 3113.53266
+      },
+      {
+        "service": "Secret Manager",
+        "gross": 811,
+        "net": 554.297455
+      },
+      {
+        "service": "Artifact Registry",
+        "gross": 494,
+        "net": 385.632419
+      },
+      {
+        "service": "Cloud Storage",
+        "gross": 8,
+        "net": 5.433957
+      },
+      {
+        "service": "Cloud Build",
+        "gross": 0,
+        "net": 0.021338
+      },
+      {
+        "service": "Cloud Logging",
+        "gross": 0,
+        "net": 0
+      },
+      {
+        "service": "VM Manager",
+        "gross": 3073,
+        "net": 0
+      },
+      {
+        "service": "Cloud DNS",
+        "gross": 0,
+        "net": 0
+      },
+      {
+        "service": "Cloud Scheduler",
+        "gross": 0,
+        "net": 0
+      }
+    ],
+    [
+      {
+        "service": "Compute Engine",
+        "gross": 12719,
+        "net": 12688.418686
+      },
+      {
+        "service": "Cloud SQL",
+        "gross": 2082,
+        "net": 2082.418572
+      },
+      {
+        "service": "Cloud Run",
+        "gross": 2810,
+        "net": 1989.350788
+      },
+      {
+        "service": "Networking",
+        "gross": 2811,
+        "net": 1521.672566
+      },
+      {
+        "service": "Secret Manager",
+        "gross": 244,
+        "net": 244.160239
+      },
+      {
+        "service": "Artifact Registry",
+        "gross": 222,
+        "net": 221.630676
+      },
+      {
+        "service": "Cloud Build",
+        "gross": 11,
+        "net": 11.300221
+      },
+      {
+        "service": "Cloud Storage",
+        "gross": 2,
+        "net": 2.260783
+      },
+      {
+        "service": "VM Manager",
+        "gross": 523,
+        "net": 0
+      }
+    ]
+  ],
+  "rates": {
+    "cpuActive": 0.0038862386161157524,
+    "memActive": 0.0003952686344456851,
+    "cpuIdle": 0.0004025249746223869,
+    "memIdle": 0.00040231957642843666,
+    "vmCore": 4.523448648744472,
+    "vmRam": 0.6034775409918889
+  },
+  "run": {
+    "service": "Cloud Run",
+    "gross": 8360,
+    "net": 5388.879989
+  },
+  "minimum": 5315.570996,
+  "minimumShare": 0.9863962468732573,
+  "scanSeptember": {
+    "idleCpuProxy": 2590441.3627646486,
+    "idleMemoryProxy": 5180571.474135677,
+    "grossEstimate": 3126.962664939129,
+    "netAllocationEstimate": 2077.5687592208883
+  },
+  "standby30": 3128.9694184262426,
+  "vmMonth": 9989.796690305318,
+  "vmBreakEvenSlotHours": 682.8357464317027,
+  "vmTcoBreakEvenSlotHours": 1089.2917440431904
+}
