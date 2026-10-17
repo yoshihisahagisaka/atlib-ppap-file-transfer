@@ -1,0 +1,23 @@
+{
+  "default_storage_class": "STANDARD",
+  "lifecycle_config": {
+    "rule": [
+      {
+        "action": {
+          "type": "Delete"
+        },
+        "condition": {
+          "age": 21
+        }
+      }
+    ]
+  },
+  "location": "ASIA-NORTHEAST1",
+  "name": "atlib-ppap-file-transfer",
+  "public_access_prevention": "inherited",
+  "soft_delete_policy": {
+    "effectiveTime": "2026-08-18T01:13:34.322000+00:00",
+    "retentionDurationSeconds": "604800"
+  },
+  "uniform_bucket_level_access": true
+}

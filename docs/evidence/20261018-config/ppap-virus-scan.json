@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "name": "ppap-virus-scan"
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "annotations": {
+          "autoscaling.knative.dev/maxScale": "20",
+          "autoscaling.knative.dev/minScale": "1",
+          "run.googleapis.com/client-name": "gcloud",
+          "run.googleapis.com/client-version": "575.0.0",
+          "run.googleapis.com/cloudsql-instances": "msp-zabbix:asia-northeast1:msp-customer-portal-db",
+          "run.googleapis.com/startup-cpu-boost": "true"
+        }
+      },
+      "spec": {
+        "containerConcurrency": 80,
+        "timeoutSeconds": 300
+      }
+    }
+  },
+  "status": {
+    "latestReadyRevisionName": "ppap-virus-scan-00014-7z2",
+    "traffic": [
+      {
+        "latestRevision": true,
+        "percent": 100,
+        "revisionName": "ppap-virus-scan-00014-7z2"
+      }
+    ]
+  }
+}
