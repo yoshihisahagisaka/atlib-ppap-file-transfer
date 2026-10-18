@@ -1,4 +1,4 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import nodemailer, { type Transporter } from 'nodemailer';
 import type { Config } from '../config';
 
 export class Mailer {
@@ -82,5 +82,10 @@ export class Mailer {
 
   async sendStaffAlert(to: string, subject: string, body: string): Promise<void> {
     await this.transporter.sendMail({ from: this.fromHeader, to, subject: `【PPAP回避システム】${subject}`, text: body });
+  }
+
+  /** Commercial usage notifier supplies only current tenant admins and a minimal, token-free body. */
+  async sendUsageNotice(to: string[], subject: string, text: string): Promise<void> {
+    await this.transporter.sendMail({ from: this.fromHeader, to, subject, text });
   }
 }
