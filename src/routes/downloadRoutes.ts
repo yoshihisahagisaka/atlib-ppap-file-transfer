@@ -1,3 +1,4 @@
+import { asyncRoute } from '../lib/asyncRoute';
 import { Router, type RequestHandler } from 'express';
 import { z } from 'zod';
 import type { Config } from '../config';
@@ -39,10 +40,11 @@ export function createDownloadRouter(
   // OTP要求/検証(総当たり対策が必要)だけに掛けるレート制限。状態確認(/status)は機微情報を
   // 含まないため、ページの再読み込み等で誤って弾かれないよう対象外にする。
   otpRateLimiter: RequestHandler,
+  observeIssuedDownload?: (groupId: string, bytes: number) => Promise<void>,
 ) {
   const router = Router();
 
-  router.get('/:token/status', async (req, res) => {
+  router.get('/:token/status', asyncRoute(async (req, res) => {
     const tokenHash = hashDownloadToken(req.params.token as string);
     const group = await transferGroupRepo.findByTokenHash(tokenHash);
     if (!group) {
@@ -87,9 +89,9 @@ export function createDownloadRouter(
       toEmailsMasked,
       downloadsRemaining: Math.max(0, group.maxDownloads - group.downloadCount),
     });
-  });
+  }));
 
-  router.post('/:token/otp', otpRateLimiter, async (req, res) => {
+  router.post('/:token/otp', otpRateLimiter, asyncRoute(async (req, res) => {
     const parsed = otpRequestSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'invalid_request' });
@@ -122,9 +124,9 @@ export function createDownloadRouter(
     });
 
     res.json({ ok: true, sentTo: maskEmail(email) });
-  });
+  }));
 
-  router.post('/:token/verify', otpRateLimiter, async (req, res) => {
+  router.post('/:token/verify', otpRateLimiter, asyncRoute(async (req, res) => {
     const parsed = verifySchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'invalid_request' });
@@ -160,11 +162,18 @@ export function createDownloadRouter(
           t.storageObject,
           t.originalFilename,
           config.transfer.signedUrlExpiresMinutes,
+          t.storageGeneration, group.expiresAt.getTime(),
         ),
       })),
     );
 
-    await transferGroupRepo.incrementDownload(group.id);
+    if (!await transferGroupRepo.claimDownload(group.id)) {
+      res.status(409).json({error:'not_found_or_unavailable'}); return;
+    }
+    if (observeIssuedDownload) {
+      try { await observeIssuedDownload(group.id,cleanTransfers.reduce((n,t)=>n+t.sizeBytes,0)); }
+      catch { req.log.warn({code:'DOWNLOAD_OBSERVATION_FAILED'},'Download observation failed'); }
+    }
     await auditLogRepo.log({
       transferId: null,
       groupId: group.id,
@@ -175,7 +184,7 @@ export function createDownloadRouter(
     });
 
     res.json({ files });
-  });
+  }));
 
   return router;
 }

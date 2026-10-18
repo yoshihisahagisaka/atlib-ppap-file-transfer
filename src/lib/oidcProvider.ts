@@ -72,8 +72,7 @@ export class OidcProvider {
       body: body.toString(),
     });
     if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(`OIDC token exchange failed: ${res.status} ${text}`);
+      throw new Error(`OIDC token exchange failed: ${res.status}`);
     }
     const json = (await res.json()) as { id_token?: string };
     if (!json.id_token) throw new Error('OIDC token response is missing id_token');
@@ -84,11 +83,13 @@ export class OidcProvider {
    * IDトークンを検証し、本人のメールアドレスを返す。emailクレームが無い/未検証の場合は
    * 例外を投げる(このスパイクではMicrosoft Graph /meへのフォールバックは行わない、スコープ外)。
    */
-  async verifyIdToken(idToken: string, expectedNonce: string): Promise<{ email: string }> {
+  async verifyIdToken(idToken: string, expectedNonce: string): Promise<{ email: string; issuer: string; subject: string }> {
     const { doc, jwks } = await this.discover();
     const { payload } = await jwtVerify(idToken, jwks, {
       issuer: doc.issuer,
       audience: this.config.clientId,
+      requiredClaims: ['exp','iat','sub','nonce'],
+      maxTokenAge: '10m',
     });
 
     if (payload.nonce !== expectedNonce) {
@@ -101,6 +102,7 @@ export class OidcProvider {
     if (!email) {
       throw new Error('OIDC id_token is missing an email claim');
     }
-    return { email: email.toLowerCase() };
+    if (!payload.iss || !payload.sub) throw new Error('OIDC identity missing issuer/subject');
+    return { email: email.toLowerCase(), issuer: payload.iss, subject: payload.sub };
   }
 }

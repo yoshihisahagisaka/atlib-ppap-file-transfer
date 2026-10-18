@@ -1,3 +1,4 @@
+import { commercialHttpSerializers } from './lib/commercialHttpLogging';
 import express from 'express';
 import pinoHttp from 'pino-http';
 import pino from 'pino';
@@ -45,7 +46,7 @@ async function main(): Promise<void> {
   const mailer = new Mailer(config.smtp);
 
   const app = express();
-  app.use(pinoHttp({ logger }));
+  app.use(pinoHttp({ logger, ...(config.commercial ? {serializers:commercialHttpSerializers} : {}) }));
   app.use(express.json());
 
   app.get('/healthz', (_req, res) => res.status(200).send('ok'));
@@ -55,7 +56,7 @@ async function main(): Promise<void> {
   app.post('/', async (req, res) => {
     const body = req.body as GcsEventBody;
     if (!body?.bucket || !body?.name) {
-      logger.warn({ body }, 'Received request without bucket/name; ignoring');
+      logger.warn(config.commercial ? {} : { body }, 'Received request without bucket/name; ignoring');
       res.status(200).send('ignored');
       return;
     }

@@ -1,3 +1,5 @@
+import { asyncRoute } from '../lib/asyncRoute';
+import type { CommercialSendConnection } from '../services/commercialSendConnection';
 import { Router } from 'express';
 import { z } from 'zod';
 import type { Config } from '../config';
@@ -48,10 +50,10 @@ const createSchema = z.object({
  * ダウンロードURL・OTP認証・期限・DL回数はこのグループに一本化されており、
  * 受信者は1つのリンク・1回のOTP認証でグループ内の全clean判定ファイルにアクセスできる。
  */
-export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, auditLogRepo: AuditLogRepo, config: Config) {
+export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, auditLogRepo: AuditLogRepo, config: Config, commercial?: CommercialSendConnection) {
   const router = Router();
 
-  router.post('/', async (req, res) => {
+  router.post('/', asyncRoute(async (req, res) => {
     const senderEmail = req.userEmail;
     if (!senderEmail) {
       res.status(401).json({ error: 'Not authenticated' });
@@ -72,7 +74,7 @@ export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, 
       input.expiresInDays ?? config.transfer.defaultExpiresDays,
       config.transfer.maxExpiresDays,
     );
-    const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+    const expiresAt = commercial ? await commercial.groupDeadline(input.expiresInDays) : new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
 
     const downloadToken = generateDownloadToken();
     const tokenHash = hashDownloadToken(downloadToken);
@@ -101,9 +103,9 @@ export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, 
       groupId: group.id,
       downloadToken, // クライアントは全ファイルの/completeを呼び終えるまでこの値をメモリ上に保持する
     });
-  });
+  }));
 
-  router.post('/:id/revoke', async (req, res) => {
+  router.post('/:id/revoke', asyncRoute(async (req, res) => {
     const senderEmail = req.userEmail;
     if (!senderEmail) {
       res.status(401).json({ error: 'Not authenticated' });
@@ -123,7 +125,7 @@ export function createTransferGroupRouter(transferGroupRepo: TransferGroupRepo, 
       ipAddress: req.ip ?? null,
     });
     res.json({ ok: true });
-  });
+  }));
 
   return router;
 }

@@ -52,7 +52,6 @@ export class OtpService {
     );
     const otp = rows[0];
     if (!otp) return { status: 'not_found', recipientEmail: null };
-    if (otp.verified_at) return { status: 'ok', recipientEmail: otp.recipient_email }; // 直近OTPが既に検証済み(署名付きURL再発行など)なら通す
     if (otp.attempt_count >= this.maxAttempts) return { status: 'locked', recipientEmail: otp.recipient_email };
     if (otp.expires_at.getTime() < Date.now()) return { status: 'expired', recipientEmail: otp.recipient_email };
 
@@ -64,7 +63,8 @@ export class OtpService {
       return { status: 'invalid', recipientEmail: otp.recipient_email };
     }
 
-    await this.pool.query('UPDATE download_otps SET verified_at = now() WHERE id = $1', [otp.id]);
+    // verified_at is audit state, not an authentication bypass.
+    if (!otp.verified_at) await this.pool.query('UPDATE download_otps SET verified_at = now() WHERE id = $1', [otp.id]);
     return { status: 'ok', recipientEmail: otp.recipient_email };
   }
 }

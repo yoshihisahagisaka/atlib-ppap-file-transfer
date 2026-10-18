@@ -9,6 +9,7 @@ export const SSO_STATE_TTL_SECONDS = 10 * 60;
 export const SSO_SESSION_TTL_SECONDS = 60 * 60;
 
 export interface SsoStateCookiePayload {
+  issuedAt?: number;
   state: string;
   nonce: string;
   codeVerifier: string;

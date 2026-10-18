@@ -13,11 +13,13 @@ interface TransferRow {
   uploaded_at: Date | null;
   scanned_at: Date | null;
   created_at: Date;
+  storage_generation?: string | null;
 }
 
 function toTransfer(row: TransferRow): Transfer {
   return {
     id: row.id,
+    storageGeneration: row.storage_generation ?? null,
     groupId: row.group_id,
     senderEmail: row.sender_email,
     originalFilename: row.original_filename,
@@ -55,14 +57,14 @@ export interface TransferHistoryRow {
 }
 
 export class TransferRepo {
-  constructor(private readonly pool: Pool) {}
+  constructor(private readonly pool: Pool, private readonly scope?: { organizationId: string; userId: string }) {}
 
   async create(input: CreateTransferInput): Promise<Transfer> {
     const { rows } = await this.pool.query<TransferRow>(
-      `INSERT INTO transfers (group_id, sender_email, original_filename, content_type, size_bytes, storage_object)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO transfers (group_id, sender_email, original_filename, content_type, size_bytes, storage_object${this.scope ? ",organization_id,sender_user_id" : ""})
+       VALUES ($1, $2, $3, $4, $5, $6${this.scope ? ",$7,$8" : ""})
        RETURNING *`,
-      [input.groupId, input.senderEmail, input.originalFilename, input.contentType, input.sizeBytes, input.storageObject],
+      [input.groupId, input.senderEmail, input.originalFilename, input.contentType, input.sizeBytes, input.storageObject, ...(this.scope ? [this.scope.organizationId,this.scope.userId] : [])],
     );
     const row = rows[0];
     if (!row) throw new Error('Failed to create transfer');
@@ -88,7 +90,7 @@ export class TransferRepo {
   }
 
   async findById(id: string): Promise<Transfer | null> {
-    const { rows } = await this.pool.query<TransferRow>('SELECT * FROM transfers WHERE id = $1', [id]);
+    const { rows } = await this.pool.query<TransferRow>(`SELECT * FROM transfers WHERE id = $1 ${this.scope ? 'AND organization_id=$2 AND sender_user_id=$3' : ''}`, [id,...(this.scope ? [this.scope.organizationId,this.scope.userId] : [])]);
     const row = rows[0];
     return row ? toTransfer(row) : null;
   }
@@ -126,10 +128,10 @@ export class TransferRepo {
               g.download_count, g.max_downloads, g.expires_at, g.revoked_at, t.created_at
          FROM transfers t
          JOIN transfer_groups g ON g.id = t.group_id
-        WHERE t.sender_email = $1
+        WHERE t.sender_email = $1 ${this.scope ? "AND t.organization_id=$3 AND t.sender_user_id=$4 AND g.organization_id=$3" : ""}
         ORDER BY t.created_at DESC
         LIMIT $2`,
-      [senderEmail, limit],
+      [senderEmail, limit, ...(this.scope ? [this.scope.organizationId,this.scope.userId] : [])],
     );
     return rows.map((row) => ({
       id: row.id,

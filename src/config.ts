@@ -1,6 +1,7 @@
 import { getSecret } from './lib/secrets';
 
 export interface Config {
+  commercial?: { origin: string };
   nodeEnv: string;
   port: number;
   gcpProjectId: string;
@@ -68,6 +69,9 @@ function required(name: string, value: string | undefined): string {
 }
 
 export async function loadConfig(): Promise<Config> {
+  if (process.env.SECURE_SEND_COMMERCIAL_MODE && !['enabled','disabled'].includes(process.env.SECURE_SEND_COMMERCIAL_MODE)) {
+    throw new Error('Invalid SECURE_SEND_COMMERCIAL_MODE');
+  }
   const gcpProjectId = process.env.GCP_PROJECT_ID ?? 'msp-zabbix';
 
   const dbPassword = await resolveSecret(gcpProjectId, process.env.DB_PASSWORD, 'ppap-db-password');
@@ -109,6 +113,9 @@ export async function loadConfig(): Promise<Config> {
     : process.env.SSO_SESSION_SECRET;
 
   return {
+    commercial: process.env.SECURE_SEND_COMMERCIAL_MODE === 'enabled' ? {
+      origin: required('SECURE_SEND_PUBLIC_ORIGIN',process.env.SECURE_SEND_PUBLIC_ORIGIN),
+    } : undefined,
     nodeEnv: process.env.NODE_ENV ?? 'development',
     port: Number(process.env.PORT ?? 8080),
     gcpProjectId,

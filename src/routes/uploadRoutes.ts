@@ -1,3 +1,4 @@
+import { asyncRoute } from '../lib/asyncRoute';
 import { Router } from 'express';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
@@ -5,6 +6,7 @@ import type { Config } from '../config';
 import type { TransferRepo } from '../services/transferRepo';
 import type { AuditLogRepo } from '../services/auditLogRepo';
 import type { StorageService } from '../services/storageService';
+import type { CommercialSendConnection } from '../services/commercialSendConnection';
 import { requestScan } from '../services/scanClient';
 
 const createSchema = z.object({
@@ -24,10 +26,13 @@ export function createUploadRouter(
   auditLogRepo: AuditLogRepo,
   storageService: StorageService,
   config: Config,
+  commercial?: CommercialSendConnection,
+  commercialGroupToken: (id: string, token: string) => Promise<boolean> = async () => false,
+  scan: typeof requestScan = requestScan,
 ) {
   const router = Router();
 
-  router.post('/', async (req, res) => {
+  router.post('/', asyncRoute(async (req, res) => {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'Invalid request', details: parsed.error.flatten() });
@@ -48,6 +53,7 @@ export function createUploadRouter(
 
     // オブジェクトパスはgroupId配下にランダムなプレフィックスを付けて格納する。バケット自体が
     // 非公開でダウンロードは常に署名付きURL経由のため、パスそのものを秘匿する必要はない。
+    if (commercial) await commercial.assertGroup(input.groupId,input.sizeBytes);
     const objectPath = storageService.objectPath(input.groupId, `${randomUUID()}-${input.filename}`);
 
     const transfer = await transferRepo.create({
@@ -68,15 +74,16 @@ export function createUploadRouter(
       detail: { filename: input.filename },
     });
 
-    const uploadUrl = await storageService.createUploadUrl(objectPath, input.contentType);
+    const grant = commercial ? await commercial.reserve(transfer.id,input.groupId,input.sizeBytes,input.contentType) :
+      { uploadUrl: await storageService.createUploadUrl(objectPath,input.contentType) };
 
     res.status(201).json({
       transferId: transfer.id,
-      uploadUrl,
+      ...grant,
     });
-  });
+  }));
 
-  router.post('/:id/complete', async (req, res) => {
+  router.post('/:id/complete', asyncRoute(async (req, res) => {
     const senderEmail = req.userEmail;
     if (!senderEmail) {
       res.status(401).json({ error: 'Not authenticated' });
@@ -93,27 +100,36 @@ export function createUploadRouter(
       res.status(404).json({ error: 'Transfer not found' });
       return;
     }
-    if (transfer.status !== 'pending_upload') {
+    if (!commercial && transfer.status !== 'pending_upload') {
       res.status(409).json({ error: `Transfer is already in status: ${transfer.status}` });
       return;
     }
 
-    const metadata = await storageService.getMetadata(transfer.storageObject);
+    // Verify token before a scan can send recipient notifications. Never accept an arbitrary link token.
+    if (commercial) {
+      const group = await commercialGroupToken(transfer.groupId!, parsed.data.groupToken);
+      if (!group) { res.status(404).json({error:'Group not found'}); return; }
+    }
+    const metadata = commercial ? await commercial.complete(transfer.id,parsed.data.groupId) :
+      await storageService.getMetadata(transfer.storageObject);
     if (!metadata) {
       res.status(409).json({ error: 'Upload not found in storage yet' });
       return;
     }
 
-    await transferRepo.markUploaded(transfer.id);
+    if (!commercial) await transferRepo.markUploaded(transfer.id);
     await auditLogRepo.log({
       transferId: transfer.id,
       groupId: parsed.data.groupId,
       event: 'uploaded',
       actor: senderEmail,
       ipAddress: req.ip ?? null,
-      detail: { sizeBytes: metadata.sizeBytes },
+      detail: { sizeBytes: 'bytes' in metadata ? metadata.bytes : metadata.sizeBytes },
     });
 
+    if (commercial && (transfer.status === 'clean' || transfer.status === 'infected')) {
+      res.json({ok:true}); return;
+    }
     if (!config.scanServiceUrl) {
       req.log.error('SCAN_SERVICE_URL is not configured');
       res.status(500).json({ error: 'scan_not_configured' });
@@ -124,7 +140,7 @@ export function createUploadRouter(
     // レスポンスする。受信者への統合通知メールは、同じフォーム送信内の全ファイルのスキャンが
     // 出揃った時点で(このリクエストがその最後の1件だった場合に)scan-server側から送られる。
     try {
-      await requestScan(
+      await scan(
         config.scanServiceUrl,
         {
           bucket: config.storageBucket,
@@ -135,15 +151,15 @@ export function createUploadRouter(
         req.log,
       );
     } catch (err) {
-      req.log.error({ err }, 'Synchronous scan request failed');
+      req.log.error(commercial ? { code: 'SCAN_FAILED' } : { err }, 'Synchronous scan request failed');
       res.status(502).json({ error: 'scan_failed' });
       return;
     }
 
     res.json({ ok: true });
-  });
+  }));
 
-  router.get('/', async (req, res) => {
+  router.get('/', asyncRoute(async (req, res) => {
     const senderEmail = req.userEmail;
     if (!senderEmail) {
       res.status(401).json({ error: 'Not authenticated' });
@@ -164,7 +180,7 @@ export function createUploadRouter(
         createdAt: t.createdAt,
       })),
     });
-  });
+  }));
 
   return router;
 }

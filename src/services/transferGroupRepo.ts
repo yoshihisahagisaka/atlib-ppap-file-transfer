@@ -47,7 +47,7 @@ export interface CreateTransferGroupInput {
  * ここに一本化されており、受信者はグループ単位で1つのリンク・1回のOTP認証で全ファイルにアクセスする。
  */
 export class TransferGroupRepo {
-  constructor(private readonly pool: Pool) {}
+  constructor(private readonly pool: Pool, private readonly scope?: { organizationId: string; userId: string }) {}
 
   /** transfer_groups本体とTo/CC宛先(transfer_group_recipients)を1トランザクションで作成する。 */
   async create(input: CreateTransferGroupInput): Promise<TransferGroup> {
@@ -56,10 +56,10 @@ export class TransferGroupRepo {
       await client.query('BEGIN');
       const { rows } = await client.query<TransferGroupRow>(
         `INSERT INTO transfer_groups
-           (sender_email, sender_name, recipient_note, token_hash, expires_at, max_downloads)
-         VALUES ($1, $2, $3, $4, $5, $6)
+           (sender_email, sender_name, recipient_note, token_hash, expires_at, max_downloads${this.scope ? ",organization_id,sender_user_id" : ""})
+         VALUES ($1, $2, $3, $4, $5, $6${this.scope ? ",$7,$8" : ""})
          RETURNING *`,
-        [input.senderEmail, input.senderName, input.recipientNote, input.tokenHash, input.expiresAt, input.maxDownloads],
+        [input.senderEmail, input.senderName, input.recipientNote, input.tokenHash, input.expiresAt, input.maxDownloads, ...(this.scope ? [this.scope.organizationId,this.scope.userId] : [])],
       );
       const row = rows[0];
       if (!row) throw new Error('Failed to create transfer group');
@@ -104,7 +104,7 @@ export class TransferGroupRepo {
   }
 
   async findById(id: string): Promise<TransferGroup | null> {
-    const { rows } = await this.pool.query<TransferGroupRow>('SELECT * FROM transfer_groups WHERE id = $1', [id]);
+    const { rows } = await this.pool.query<TransferGroupRow>(`SELECT * FROM transfer_groups WHERE id = $1 ${this.scope ? 'AND organization_id=$2 AND sender_user_id=$3' : ''}`, [id,...(this.scope ? [this.scope.organizationId,this.scope.userId] : [])]);
     const row = rows[0];
     return row ? toGroup(row) : null;
   }
@@ -142,7 +142,14 @@ export class TransferGroupRepo {
     await this.pool.query('UPDATE transfer_groups SET download_count = download_count + 1 WHERE id = $1', [id]);
   }
 
+  /** Atomic gate for issued download links, including concurrent OTP verification. */
+  async claimDownload(id: string): Promise<boolean> {
+    const {rowCount}=await this.pool.query(`UPDATE transfer_groups SET download_count=download_count+1
+      WHERE id=$1 AND revoked_at IS NULL AND expires_at>now() AND download_count<max_downloads RETURNING id`,[id]);
+    return (rowCount ?? 0)>0;
+  }
+
   async revoke(id: string): Promise<void> {
-    await this.pool.query('UPDATE transfer_groups SET revoked_at = now() WHERE id = $1', [id]);
+    await this.pool.query(`UPDATE transfer_groups SET revoked_at = now() WHERE id = $1 ${this.scope ? 'AND organization_id=$2 AND sender_user_id=$3' : ''}`, [id,...(this.scope ? [this.scope.organizationId,this.scope.userId] : [])]);
   }
 }

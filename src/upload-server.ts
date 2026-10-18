@@ -1,4 +1,6 @@
+import { commercialHttpSerializers } from './lib/commercialHttpLogging';
 import path from 'path';
+import { mountCommercialUpload } from './commercialUpload';
 import express from 'express';
 import pinoHttp from 'pino-http';
 import pino from 'pino';
@@ -18,7 +20,7 @@ async function main(): Promise<void> {
   const config = await loadConfig();
   const logger = pino({ level: config.nodeEnv === 'production' ? 'info' : 'debug' });
 
-  if (config.nodeEnv === 'production' && config.iapAudiences.length === 0) {
+  if (!config.commercial && config.nodeEnv === 'production' && config.iapAudiences.length === 0) {
     throw new Error('IAP_AUDIENCE is required in production (upload-service must sit behind IAP)');
   }
   if (!config.downloadBaseUrl) {
@@ -38,17 +40,21 @@ async function main(): Promise<void> {
   // Cloud Run本番ではGoogle Front Endが1ホップ手前でTLS終端しX-Forwarded-Forを付与するため、
   // req.ipが正しいクライアントIPを指すようにtrust proxyを有効化する(IPレート制限で使用)。
   app.set('trust proxy', true);
-  app.use(pinoHttp({ logger }));
+  app.use(pinoHttp({ logger, ...(config.commercial ? {serializers:commercialHttpSerializers} : {}) }));
   app.use(express.json());
 
   app.get('/healthz', (_req, res) => res.status(200).send('ok'));
 
+  if (config.commercial) {
+    mountCommercialUpload(app,pool,storageService,auditLogRepo,config,logger);
+  } else {
   app.use(createIapAuthMiddleware(config.iapAudiences, config.nodeEnv, logger));
   app.use('/api/transfers', createRateLimiter({ windowMs: 60 * 1000, maxRequests: 30 }));
   app.use('/api/transfers', createUploadRouter(transferRepo, auditLogRepo, storageService, config));
   app.use('/api/transfer-groups', createRateLimiter({ windowMs: 60 * 1000, maxRequests: 30 }));
   app.use('/api/transfer-groups', createTransferGroupRouter(transferGroupRepo, auditLogRepo, config));
   app.use('/api/audit-logs', createAuditLogRouter(auditLogRepo));
+  }
 
   app.use(express.static(path.join(__dirname, '../public/upload')));
 

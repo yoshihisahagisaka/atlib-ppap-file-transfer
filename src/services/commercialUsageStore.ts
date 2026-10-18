@@ -1,6 +1,9 @@
 import type { Period, Reservation, UsageEvent, Notice, DownloadObservation } from '../domain/commercialUsage';
 
 export interface UsageTransaction {
+  /** Production adapter uses this same connection, under the organization lock. */
+  transferScope?(groupId: string, transferId: string, userId: string): Promise<import('./commercialUsageService').TransferScope | null>;
+  commitTransfer?(reservation: Reservation): Promise<void>;
   period(): Promise<Period | null>;
   overlapsOtherPeriod(startsAt: number, endsAt: number): Promise<boolean>;
   savePeriod(period: Period): Promise<void>;
