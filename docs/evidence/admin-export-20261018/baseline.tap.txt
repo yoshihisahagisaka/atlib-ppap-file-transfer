@@ -1,0 +1,166 @@
+TAP version 13
+# (node:34696) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:34696) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/YoshihisaHagisaka/Documents/Codex/2026-10-17/new-chat-2/secure-send-admin-export/src/domain/commercialUsage.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to \\\\?\\C:\\Users\\YoshihisaHagisaka\\Documents\\Codex\\2026-10-17\\new-chat-2\\secure-send-admin-export\\package.json.
+# Subtest: PostgreSQL: isolated schema concurrency, composite tenant FK and append-only history
+ok 1 - PostgreSQL: isolated schema concurrency, composite tenant FK and append-only history # SKIP
+  ---
+  duration_ms: 1.6966
+  type: 'test'
+  ...
+# (node:3104) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:3104) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/YoshihisaHagisaka/Documents/Codex/2026-10-17/new-chat-2/secure-send-admin-export/src/domain/tenantAuthorization.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to \\\\?\\C:\\Users\\YoshihisaHagisaka\\Documents\\Codex\\2026-10-17\\new-chat-2\\secure-send-admin-export\\package.json.
+# Subtest: configured 5GB is multiplied by CONTRACTED senders, not active users; absent/unsafe policy fails
+ok 2 - configured 5GB is multiplied by CONTRACTED senders, not active users; absent/unsafe policy fails
+  ---
+  duration_ms: 2.6157
+  type: 'test'
+  ...
+# Subtest: concurrent reservations cannot exceed shared quota; database error rolls back reservation and counters
+ok 3 - concurrent reservations cannot exceed shared quota; database error rolls back reservation and counters
+  ---
+  duration_ms: 4.8683
+  type: 'test'
+  ...
+# Subtest: 80% queues one warning, 100% queues full and denies NEW sends while owner can complete reserved upload
+ok 4 - 80% queues one warning, 100% queues full and denies NEW sends while owner can complete reserved upload
+  ---
+  duration_ms: 1.4237
+  type: 'test'
+  ...
+# Subtest: tenant/user/admin denials produce no storage call or cross-tenant side effect
+ok 5 - tenant/user/admin denials produce no storage call or cross-tenant side effect
+  ---
+  duration_ms: 0.9555
+  type: 'test'
+  ...
+# Subtest: actual metadata size must match reserved size; revoked ownership blocks complete; no double accounting
+ok 6 - actual metadata size must match reserved size; revoked ownership blocks complete; no double accounting
+  ---
+  duration_ms: 0.7143
+  type: 'test'
+  ...
+# Subtest: approved quantity snapshot and capacity grants are staff-only, idempotent and audit-backed
+ok 7 - approved quantity snapshot and capacity grants are staff-only, idempotent and audit-backed
+  ---
+  duration_ms: 1.1142
+  type: 'test'
+  ...
+# Subtest: expired URL alone cannot refund reservation; positive closure evidence plus no object required
+ok 8 - expired URL alone cannot refund reservation; positive closure evidence plus no object required
+  ---
+  duration_ms: 0.6747
+  type: 'test'
+  ...
+# Subtest: download detection separates estimates, egress and internal scan traffic, dedupes and never disables receiving
+ok 9 - download detection separates estimates, egress and internal scan traffic, dedupes and never disables receiving
+  ---
+  duration_ms: 0.8104
+  type: 'test'
+  ...
+# Subtest: outbox retries delivery failure, fences concurrent workers, and stops after max attempts
+ok 10 - outbox retries delivery failure, fences concurrent workers, and stops after max attempts
+  ---
+  duration_ms: 8.4278
+  type: 'test'
+  ...
+# Subtest: retention delete is generation-conditional, repeatable, and never refunds monthly usage
+ok 11 - retention delete is generation-conditional, repeatable, and never refunds monthly usage
+  ---
+  duration_ms: 1.2249
+  type: 'test'
+  ...
+# Subtest: GCS grant binds exact bytes and create-only, generation stays a decimal string; 412 is not swallowed
+ok 12 - GCS grant binds exact bytes and create-only, generation stays a decimal string; 412 is not swallowed
+  ---
+  duration_ms: 0.5278
+  type: 'test'
+  ...
+# Subtest: SQL adapter locks before any period lookup, binds org/period, rolls back and always releases
+ok 13 - SQL adapter locks before any period lookup, binds org/period, rolls back and always releases
+  ---
+  duration_ms: 1.0465
+  type: 'test'
+  ...
+# Subtest: notification resolves CURRENT active admins, rejects mixed tenants and missing contacts before SMTP
+ok 14 - notification resolves CURRENT active admins, rejects mixed tenants and missing contacts before SMTP
+  ---
+  duration_ms: 16.9477
+  type: 'test'
+  ...
+# Subtest: month boundary keeps existing reservations in original period; new period requires formal snapshot and does not carry extra quota
+ok 15 - month boundary keeps existing reservations in original period; new period requires formal snapshot and does not carry extra quota
+  ---
+  duration_ms: 0.9268
+  type: 'test'
+  ...
+# Subtest: job batch records failure without stopping other tenants; unauthorized discovery never reads DB
+ok 16 - job batch records failure without stopping other tenants; unauthorized discovery never reads DB
+  ---
+  duration_ms: 0.7472
+  type: 'test'
+  ...
+# Subtest: period renaming cannot create a second allowance for overlapping dates; future orders wait for effective date
+ok 17 - period renaming cannot create a second allowance for overlapping dates; future orders wait for effective date
+  ---
+  duration_ms: 0.281
+  type: 'test'
+  ...
+# Subtest: manual extra quota supersedes stale pending mail and re-arms notification at the new threshold
+ok 18 - manual extra quota supersedes stale pending mail and re-arms notification at the new threshold
+  ---
+  duration_ms: 0.6537
+  type: 'test'
+  ...
+# Subtest: existing Mailer usage adapter sends minimal notification; OTP path retains existing behavior
+ok 19 - existing Mailer usage adapter sends minimal notification; OTP path retains existing behavior
+  ---
+  duration_ms: 7.4663
+  type: 'test'
+  ...
+# (node:26528) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: own organization and sender succeeds; other organization or owner fails
+ok 20 - own organization and sender succeeds; other organization or owner fails
+  ---
+  duration_ms: 2.0556
+  type: 'test'
+  ...
+# Subtest: mismatched membership, invitations, suspensions and no-send deny
+ok 21 - mismatched membership, invitations, suspensions and no-send deny
+  ---
+  duration_ms: 0.4419
+  type: 'test'
+  ...
+# Subtest: admin does not require a sender seat or bypass tenant ownership
+ok 22 - admin does not require a sender seat or bypass tenant ownership
+  ---
+  duration_ms: 0.3623
+  type: 'test'
+  ...
+# Subtest: sender count excludes invited, suspended, other tenants and non-senders; deduplicates
+ok 23 - sender count excludes invited, suspended, other tenants and non-senders; deduplicates
+  ---
+  duration_ms: 0.9339
+  type: 'test'
+  ...
+# Subtest: allowance is configurable and denies unknown, exhausted or invalid configuration
+ok 24 - allowance is configurable and denies unknown, exhausted or invalid configuration
+  ---
+  duration_ms: 0.3048
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 320.2259

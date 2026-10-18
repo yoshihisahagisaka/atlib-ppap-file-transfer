@@ -1,0 +1,48 @@
+{
+  "node": "v24.18.0",
+  "main": "9c1b002",
+  "remoteParent": "287c4a94c1b74b7a22a077927a4544a685cd3dd1",
+  "localParent": "b58db05",
+  "results": {
+    "build": "PASS",
+    "strict": "PASS",
+    "baseline.tap": {
+      "pass": 23,
+      "fail": 0,
+      "skip": 1
+    },
+    "connection.tap": {
+      "pass": 16,
+      "fail": 0,
+      "skip": 6
+    },
+    "export.tap": {
+      "pass": 10,
+      "fail": 0,
+      "skip": 1
+    },
+    "audit-js-syntax": "PASS",
+    "admin-js-syntax": "PASS",
+    "preflight": "SKIP: validation DB not configured"
+  },
+  "realDatabaseApplied": false,
+  "cloudChanged": false,
+  "productionChanged": false,
+  "hashes": {
+    "docs/secure-send-admin-export-fit-gap-20261018.md": "b92e3010b221dfe79ba139904e6c74254615db85e8f5a42708c32c5d3ddc4655",
+    "package.json": "dedf361e4bc31a64f45f79d8a7f05b9bb5056c01da81f9f629e539263aefddc1",
+    "public/upload/audit.html": "082b1e3d843fe3b39481d5b6f4ba160812db2539cd75c04e84a91e4488817437",
+    "public/upload/audit.js": "23db222f876fd6c1e142dae74cf1730f0edb9b1f48298da0bc19e08a24dc3816",
+    "public/upload/history-admin.js": "f6e223da232a808a6b2d4a35b68533f447c57332a17b9733912b19fde42dd8ae",
+    "scripts/validation/secure-send-preflight.cjs": "4314a3f0bfda63051a0ce42de7f37ac2fb622173b2fb4c561d383c445608c376",
+    "src/commercialUpload.ts": "bdfe3e1f59a94314f4829af1f49cbfb199a480f307dc64cf7f1a18bbd53bdce6",
+    "src/config.ts": "a6c0b8c6ec18cf6710f2502dc29a694e5264a75a8eb061f09ce10f9d607980da",
+    "src/domain/transfer.ts": "c44d732aa508b6fe1ec1c314c0b2fc93f3483eeced3b7982da6c655a27624591",
+    "src/routes/auditLogRoutes.ts": "cc53eafbe0e89ed94dbd8778deed8d16de52a99968b8bc07fac18e09a478ce72",
+    "src/routes/historyExportRoutes.ts": "d6ab986be1b3afa4ca4a04b08ebdb4f045626d32ae810c70d2c9a9e0d1b4454a",
+    "src/services/historyExport.ts": "fbcdb8407843fd1093a906c143947d14fcb37af6413de2e6189193876ed3f1a2",
+    "test/commercialConnection.test.cjs": "257f2849a4186a30ad33a15adb00afb060acf4eb6ef214bf09764bb6ec39f350",
+    "test/commercialUsage.postgres.test.cjs": "8e05fefe0ed4bfc56b0ff42b022be0b9e47e42697d3bf935c5afcd4e2dbf8580",
+    "test/historyExport.test.cjs": "ec567628cde3310bcab0cd3954fa72b6e53b3bc7cbad0ada74a81a2fc385c6ac"
+  }
+}

@@ -36,18 +36,21 @@ async function load() {
     const tr = document.createElement('tr');
     const when = new Date(e.createdAt).toLocaleString('ja-JP');
     const cls = pillClass[e.event] || 'muted';
-    tr.innerHTML = `
-      <td class="nowrap">${when}</td>
-      <td><span class="pill ${cls}">${e.eventLabel}</span></td>
-      <td>${e.actor ?? ''}</td>
-      <td>${e.filename ?? ''}</td>
-      <td>${e.senderEmail ?? ''}</td>
-      <td>${e.recipientEmail ?? ''}</td>
-      <td>${e.ipAddress ?? ''}</td>
-    `;
+    const values=[when,e.eventLabel,e.actor,e.filename,e.senderEmail,e.recipientEmail,e.ipAddress];
+    values.forEach((value,i)=>{const td=document.createElement('td');
+      if(i===1){const span=document.createElement('span');span.className='pill '+cls;span.textContent=value??'';td.appendChild(span);}
+      else td.textContent=value??'';tr.appendChild(td);});
     tbody.appendChild(tr);
   }
   document.getElementById('log-table-wrap').style.display = 'block';
 }
 
-load().catch((err) => setStatus(`エラー: ${err.message}`));
+async function initializeAuditScreen() {
+  const session=await fetch('/api/session');
+  if(session.status===404){await load();return;} // Existing IAP-only deployment.
+  if(!session.ok){setStatus('ログインが必要です。');return;}
+  const user=await session.json();
+  if(user.role!=='admin'){setStatus('企業管理者のみ閲覧・出力できます。');return;}
+  await loadCommercialHistory();
+}
+initializeAuditScreen().catch(err=>setStatus(err.message));

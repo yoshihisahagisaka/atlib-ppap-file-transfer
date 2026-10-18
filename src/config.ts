@@ -1,7 +1,7 @@
 import { getSecret } from './lib/secrets';
 
 export interface Config {
-  commercial?: { origin: string };
+  commercial?: { origin: string; exportLimits?: {maxDays: number; maxRows: number; maxBytes: number} };
   nodeEnv: string;
   port: number;
   gcpProjectId: string;
@@ -115,6 +115,8 @@ export async function loadConfig(): Promise<Config> {
   return {
     commercial: process.env.SECURE_SEND_COMMERCIAL_MODE === 'enabled' ? {
       origin: required('SECURE_SEND_PUBLIC_ORIGIN',process.env.SECURE_SEND_PUBLIC_ORIGIN),
+      exportLimits: {maxDays:Number(process.env.SEND_EXPORT_MAX_DAYS??90),maxRows:Number(process.env.SEND_EXPORT_MAX_ROWS??10000),
+        maxBytes:Number(process.env.SEND_EXPORT_MAX_BYTES??10485760)},
     } : undefined,
     nodeEnv: process.env.NODE_ENV ?? 'development',
     port: Number(process.env.PORT ?? 8080),

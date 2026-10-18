@@ -1,4 +1,6 @@
 import { asyncRoute } from './lib/asyncRoute';
+import { HistoryExportService, HistoryExportError } from './services/historyExport';
+import { createHistoryExportRouter } from './routes/historyExportRoutes';
 import type { Express, ErrorRequestHandler } from 'express';
 import type { Pool } from 'pg';
 import type pino from 'pino';
@@ -85,13 +87,15 @@ export function mountCommercialUpload(app: Express, pool: Pool, storage: Storage
         consumedBytes:view.period.consumedBytes,reservedBytes:view.period.reservedBytes,extraBytes:view.period.extraBytes,
         remainingBytes:view.remainingBytes,sendingRestricted:view.sendingRestricted});
   }));
-  // Existing global audit viewer must never be reachable in customer mode.
+  app.use('/api/audit-logs',createRateLimiter({windowMs:60000,maxRequests:10}),createHistoryExportRouter(
+    new HistoryExportService(pool,config.commercial?.exportLimits ?? {maxDays:90,maxRows:10000,maxBytes:10*1024*1024})));
+  // The legacy global audit query is never mounted in customer mode.
   app.use('/api',(_req,res)=>res.status(404).json({error:'NOT_FOUND'}));
   const errors: ErrorRequestHandler = (err,_req,res,_next) => {
     const denied = err instanceof AuthorizationDenied;
-    const code=err instanceof UsageError ? err.code : denied ? 'ACCESS_DENIED' : 'REQUEST_FAILED';
+    const code=err instanceof HistoryExportError ? err.code : err instanceof UsageError ? err.code : denied ? 'ACCESS_DENIED' : 'REQUEST_FAILED';
     logger.warn({code},'Commercial request failed');
-    res.status(denied?403:err instanceof UsageError?409:500).json({error:code});
+    res.status(denied?403:err instanceof HistoryExportError?err.status:err instanceof UsageError?409:500).json({error:code});
   };
   app.use(errors);
 }

@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: HTTP session rejects dev headers, tampered/expired/spike cookies and cross-origin POST; re-resolves membership
+ok 1 - HTTP session rejects dev headers, tampered/expired/spike cookies and cross-origin POST; re-resolves membership
+  ---
+  duration_ms: 139.696
+  type: 'test'
+  ...
+# Subtest: registered issuer/subject is mandatory; selector is bound in SQL, email does not grant membership
+ok 2 - registered issuer/subject is mandatory; selector is bound in SQL, email does not grant membership
+  ---
+  duration_ms: 0.9279
+  type: 'test'
+  ...
+# Subtest: existing SSO state/nonce/PKCE callback invokes approved identity adapter, never domain JIT
+ok 3 - existing SSO state/nonce/PKCE callback invokes approved identity adapter, never domain JIT
+  ---
+  duration_ms: 31.132
+  type: 'test'
+  ...
+# Subtest: OIDC JWT verifies real signatures, issuer, audience, nonce, expiry and immutable subject
+ok 4 - OIDC JWT verifies real signatures, issuer, audience, nonce, expiry and immutable subject
+  ---
+  duration_ms: 167.3403
+  type: 'test'
+  ...
+# Subtest: upload HTTP reserves before issuing URL; quota failure is handled; cross-tenant group cannot create transfer
+ok 5 - upload HTTP reserves before issuing URL; quota failure is handled; cross-tenant group cannot create transfer
+  ---
+  duration_ms: 9.7278
+  type: 'test'
+  ...
+# Subtest: scoped repositories bind tenant and immutable sender in history/find/create/revoke SQL
+ok 6 - scoped repositories bind tenant and immutable sender in history/find/create/revoke SQL
+  ---
+  duration_ms: 0.4738
+  type: 'test'
+  ...
+# Subtest: complete retry uses original reservation period across month boundary and no client-selected period
+ok 7 - complete retry uses original reservation period across month boundary and no client-selected period
+  ---
+  duration_ms: 0.3585
+  type: 'test'
+  ...
+# Subtest: PostgreSQL adapter uses one connection for scoped transfer and actual-size/generation commit, rollback on update failure
+ok 8 - PostgreSQL adapter uses one connection for scoped transfer and actual-size/generation commit, rollback on update failure
+  ---
+  duration_ms: 0.6775
+  type: 'test'
+  ...
+# Subtest: recipient OTP/download remains available independently of exhausted sending quota, pins generation and expiry
+ok 9 - recipient OTP/download remains available independently of exhausted sending quota, pins generation and expiry
+  ---
+  duration_ms: 6.3242
+  type: 'test'
+  ...
+# Subtest: GCS SDK bridge passes signed headers, pinned scan read and generation-conditional delete
+ok 10 - GCS SDK bridge passes signed headers, pinned scan read and generation-conditional delete
+  ---
+  duration_ms: 1.3782
+  type: 'test'
+  ...
+# Subtest: connected upload completes real-size quota once and retries scan failure without legacy markUploaded
+ok 11 - connected upload completes real-size quota once and retries scan failure without legacy markUploaded
+  ---
+  duration_ms: 15.4669
+  type: 'test'
+  ...
+# Subtest: commercial group uses contract retention rather than global legacy defaults; admin without sender seat cannot send
+ok 12 - commercial group uses contract retention rather than global legacy defaults; admin without sender seat cannot send
+  ---
+  duration_ms: 0.6947
+  type: 'test'
+  ...
+# Subtest: atomic download claim contains expiry, revoke and count conditions
+ok 13 - atomic download claim contains expiry, revoke and count conditions
+  ---
+  duration_ms: 0.169
+  type: 'test'
+  ...
+# Subtest: commercial HTTP serializers exclude callback codes, cookies and recipient tokens
+ok 14 - commercial HTTP serializers exclude callback codes, cookies and recipient tokens
+  ---
+  duration_ms: 1.1537
+  type: 'test'
+  ...
+# Subtest: commercial server composition separates admin/sender roles and blocks the global audit router
+ok 15 - commercial server composition separates admin/sender roles and blocks the global audit router
+  ---
+  duration_ms: 61.5789
+  type: 'test'
+  ...
+# Subtest: existing OTP reissue requires correct code and expiry even after verified_at (real bcrypt, fixture DB)
+ok 16 - existing OTP reissue requires correct code and expiry even after verified_at (real bcrypt, fixture DB)
+  ---
+  duration_ms: 167.7264
+  type: 'test'
+  ...
+# Subtest: PostgreSQL real transaction/locking + ordered DDL
+ok 17 - PostgreSQL real transaction/locking + ordered DDL # SKIP Requires approved isolated environment; no DB/Cloud/SMTP/IdP action performed
+  ---
+  duration_ms: 0.2252
+  type: 'test'
+  ...
+# Subtest: GCS real PUT/CORS/size/precondition/egress
+ok 18 - GCS real PUT/CORS/size/precondition/egress # SKIP Requires approved isolated environment; no DB/Cloud/SMTP/IdP action performed
+  ---
+  duration_ms: 0.0612
+  type: 'test'
+  ...
+# Subtest: ClamAV real clean/infected + definition update
+ok 19 - ClamAV real clean/infected + definition update # SKIP Requires approved isolated environment; no DB/Cloud/SMTP/IdP action performed
+  ---
+  duration_ms: 0.0413
+  type: 'test'
+  ...
+# Subtest: SMTP real delivery/retry/current admins
+ok 20 - SMTP real delivery/retry/current admins # SKIP Requires approved isolated environment; no DB/Cloud/SMTP/IdP action performed
+  ---
+  duration_ms: 0.0411
+  type: 'test'
+  ...
+# Subtest: Google/Microsoft real SSO + registered memberships
+ok 21 - Google/Microsoft real SSO + registered memberships # SKIP Requires approved isolated environment; no DB/Cloud/SMTP/IdP action performed
+  ---
+  duration_ms: 0.0431
+  type: 'test'
+  ...
+# Subtest: Production-equivalent sender/recipient end-to-end
+ok 22 - Production-equivalent sender/recipient end-to-end # SKIP Requires approved isolated environment; no DB/Cloud/SMTP/IdP action performed
+  ---
+  duration_ms: 0.0452
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 6
+# todo 0
+# duration_ms 1285.3062

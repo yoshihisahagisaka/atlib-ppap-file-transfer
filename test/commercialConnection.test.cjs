@@ -200,7 +200,7 @@ test('commercial server composition separates admin/sender roles and blocks the 
  await http(app,async url=>{
   const headers={cookie:cookie()};
   assert.equal((await fetch(url+'/api/session',{headers})).status,200);
-  assert.equal((await fetch(url+'/api/audit-logs',{headers})).status,404);
+  assert.equal((await fetch(url+'/api/audit-logs',{headers})).status,403);
   assert.equal((await fetch(url+'/api/usage',{headers})).status,403);
   assert.equal((await fetch(url+'/api/session',{headers:{...headers,'x-send-organization-id':other}})).status,403);
   role='admin';canSend=false;
