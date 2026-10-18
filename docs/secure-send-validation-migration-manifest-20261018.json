@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "sourceCommit": "67262a28ff7c446237bd16babd2012f43b32750a",
+  "scope": "Dedicated empty LOCAL validation DB only; no production authorization",
+  "target": {
+    "host": "127.0.0.1",
+    "port": 55432,
+    "database": "send_commercial_usage_test",
+    "role": "send_migrator",
+    "schema": "public"
+  },
+  "lockTimeout": "5s",
+  "statementTimeout": "60s",
+  "entries": [
+    {
+      "ledgerName": "001_init.sql",
+      "path": "migrations/001_init.sql",
+      "bytes": 3181,
+      "sha256": "12fea4560b18745ec147dc1b90acd15eed09e559f3468013a723ac98672d1186",
+      "gitBlob": "dea31e48615788e595c523326ff013901d8c3591"
+    },
+    {
+      "ledgerName": "002_transfer_groups.sql",
+      "path": "migrations/002_transfer_groups.sql",
+      "bytes": 933,
+      "sha256": "e03abb15649cb8254b0f5976d15bfbaa67166014c59d020ced1435cf61d07cef",
+      "gitBlob": "268f7eeea90d5e5b9b778f19987552f33f240ed2"
+    },
+    {
+      "ledgerName": "003_sender_name.sql",
+      "path": "migrations/003_sender_name.sql",
+      "bytes": 203,
+      "sha256": "672a116a74de2457c58c87e806e9d40658ef83ee35fd0b7093eb11dbd7d428a6",
+      "gitBlob": "8f5743ef644081a88b7482377882ef5a78ed1e9c"
+    },
+    {
+      "ledgerName": "004_group_download.sql",
+      "path": "migrations/004_group_download.sql",
+      "bytes": 2583,
+      "sha256": "7404c8c5e30410212c4603d07f4e076fc95032d7b6db051d3a6bd1e07de62779",
+      "gitBlob": "18065a127da248907fd011a994e1e7e72e2f8014"
+    },
+    {
+      "ledgerName": "006_recipient_cc.sql",
+      "path": "migrations/006_recipient_cc.sql",
+      "bytes": 1637,
+      "sha256": "7a8761ecef3299efcc4d0461fa23f78af00c6d0c059c40c76ee044867fc9b7a5",
+      "gitBlob": "bd82d1b4afc05f60ded815780823ff3dbf307259"
+    },
+    {
+      "ledgerName": "007_tenant_foundation.sql",
+      "path": "docs/tenant-foundation-schema.draft.sql",
+      "bytes": 2084,
+      "sha256": "c0388738364cc03c36912aa7dea4007a3e27bd22e996e9f565e409d8b3cb71dd",
+      "gitBlob": "749a36f452c279b9a787632490ba9e85a8ff38f1"
+    },
+    {
+      "ledgerName": "008_commercial_transfer_connection.sql",
+      "path": "docs/commercial-transfer-connection-schema.draft.sql",
+      "bytes": 1946,
+      "sha256": "1de3411f9baad19ff2fae323e480aa8f7c24bac6b78d345d9ec0a273952e9a91",
+      "gitBlob": "9716ad5fc74579b54b4b34da44dc30ce2448e03c"
+    },
+    {
+      "ledgerName": "009_commercial_usage.sql",
+      "path": "docs/commercial-usage-schema.draft.sql",
+      "bytes": 3860,
+      "sha256": "f572ed562cbaeeb489134c34628b495f1ed5f26747e3700c154bd9133509a90d",
+      "gitBlob": "16504a95a51a138eecf167633b3cbb6a687739c3"
+    }
+  ],
+  "excluded": [
+    "migrations/sso-verify-archive/005_sso_verify_spike.sql",
+    "docs/secure-send-local-db-bootstrap.sql",
+    "test fixtures",
+    "all non-manifest SQL"
+  ],
+  "numbering": "007-009 reserved for this validation manifest only; production numbering requires a new review",
+  "acl": {
+    "ledgerName": "010_validation_runtime_acl.sql",
+    "path": "docs/secure-send-validation-runtime-acl-20261018.sql",
+    "bytes": 1840,
+    "sha256": "4f7819ab2ac94856bea7b1fb9c0b85a2eefa3ecad764b9545c3812889ad6f088"
+  }
+}
