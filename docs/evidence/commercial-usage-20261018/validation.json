@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-18T08:18:23.322Z",
+  "node": "v24.18.0",
+  "typescript": "5.9.3 (archive integrity matches package-lock)",
+  "passed": 23,
+  "failed": 0,
+  "skipped": 1,
+  "strictTypecheckExit": 0,
+  "postgres": "not executed; Docker permission denied; opt-in test forced disabled for local unit evidence",
+  "fullBuild": "failed due unavailable dependencies/types after npm ci ENOTCACHED/EPERM; not verified",
+  "cloud": "no real GCS/SMTP/SSO/scan/DB calls",
+  "runtimeIntegration": "not mounted; requires trusted tenant context and approved isolated schema",
+  "foundation": "d6b51e1c1bc2f7979edd636d6603599180b63b0f",
+  "sourceHashNormalization": "LF (Git canonical text)",
+  "sourceSHA256": {
+    "src/domain/tenantAuthorization.ts": "a738ae9de0efe5b7196ab67276e205376147b9bd4687c02b112fe511b9857053",
+    "src/domain/commercialUsage.ts": "17b704bd5b9e6969ef605d61753eb04963628ed5c12b5ec29ddaca823eb710c7",
+    "src/services/commercialUsageService.ts": "fdf774535b31203a739b91319e45cd54931719eff08221789297384bee39cd75",
+    "src/services/commercialUsageStore.ts": "48d6c81272deea44dff8434138af3fa501fe77e75f993db0b2815bbe44db2e4a",
+    "src/services/pgCommercialUsageStore.ts": "9d1d72810149f0ebf0055fd29ba5c4cf1c2b45888bb5328af0c41fc82b0793a3",
+    "src/services/commercialGcs.ts": "314f582edc718d0dd1f423bf2f04a9ae9c6f252493679193a98620b133973d10",
+    "src/services/commercialUsageJobs.ts": "46c78a51ab35435b5f958fed37a02ae41e24e6195b2f2fa04fac1757f3079eef",
+    "src/services/commercialUsageNotifications.ts": "bf5d44139aa7f13194bfb00cc4af9eef5269a6930e0c5bf6507b5b3e75d7cd51",
+    "src/services/mailer.ts": "c5df56f43d55c8b55cb53b9121ec78e64cbf75329ce6b869d67c259eab25acdb",
+    "test/tenantAuthorization.test.cjs": "ab15b8633afbdc834bdb4b541dc518c53d0e7982d7b7711ba1d5120ea369398c",
+    "test/commercialUsage.test.cjs": "8329c9ede0b709352cda709b69a23a88f587a789e63e84f905113013057ce54b",
+    "test/commercialUsage.postgres.test.cjs": "fee28903079c2242bfc153075bb251e1004b0f82ef123a23105a92c661b350b1",
+    "test/support/register-types.cjs": "2f448cfab07d10718e7251cd788bcc7d7defb0710822fa3c1cc3dfdd280c582f",
+    "test/support/usageHarness.cjs": "eb99e85f86703f89216624cc1c21e96da6842c094a978a755c0d2bd4768cb264",
+    "test/support/fakeNodemailer.cjs": "1e79640bda70ceed2fa3fc3c15f09776de6e0e2a84f1242133e5a464ce2cd7cb"
+  }
+}

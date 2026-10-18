@@ -1,0 +1,4 @@
+{
+  "compilerOptions": { "target": "ES2022", "module": "commonjs", "strict": true, "noUncheckedIndexedAccess": true, "noEmit": true, "types": [] },
+  "files": ["../src/domain/tenantAuthorization.ts", "../src/domain/commercialUsage.ts", "../src/services/commercialUsageStore.ts", "../src/services/commercialUsageService.ts", "../src/services/pgCommercialUsageStore.ts", "../src/services/commercialGcs.ts", "../src/services/commercialUsageNotifications.ts", "../src/services/commercialUsageJobs.ts"]
+}

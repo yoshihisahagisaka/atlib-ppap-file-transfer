@@ -5,6 +5,8 @@
   "description": "atLIB PPAP回避ファイル送信システム(社内→社外、有効期限付きリンク+メールOTP+ウイルススキャン)",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "test:commercial": "node --experimental-transform-types --test test/tenantAuthorization.test.cjs test/commercialUsage.test.cjs test/commercialUsage.postgres.test.cjs",
+    "typecheck:commercial": "tsc -p test/tsconfig.commercial.json",
     "start:upload": "node dist/upload-server.js",
     "start:download": "node dist/download-server.js",
     "start:scan": "node dist/jobs/scanJob.js",
