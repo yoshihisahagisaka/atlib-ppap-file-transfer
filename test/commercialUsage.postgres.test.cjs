@@ -20,26 +20,39 @@ test('PostgreSQL: isolated schema concurrency, composite tenant FK and append-on
     await owner.query(`CREATE SCHEMA ${schema}`);
     created=true;
     pool=new Pool({connectionString:url,max:12,options:`-c search_path=${schema},public`});
-    await pool.query('CREATE TABLE organizations(id UUID PRIMARY KEY); CREATE TABLE transfers(id UUID PRIMARY KEY,organization_id UUID NOT NULL REFERENCES organizations(id),UNIQUE(organization_id,id))');
-    // REVIEW ONLY schema applied to random ephemeral fixtures, never a service migration ledger.
-    await pool.query(fs.readFileSync(require.resolve('../docs/commercial-usage-schema.draft.sql'),'utf8'));
+    // Full dependency order in an empty random schema. Never invoke the service migration runner.
+    for(const file of fs.readdirSync(require('node:path').join(__dirname,'../migrations')).filter(f=>f.endsWith('.sql')).sort())
+      await pool.query(fs.readFileSync(require('node:path').join(__dirname,'../migrations',file),'utf8'));
+    for(const file of ['tenant-foundation-schema.draft.sql','commercial-transfer-connection-schema.draft.sql','commercial-usage-schema.draft.sql'])
+      await pool.query(fs.readFileSync(require('node:path').join(__dirname,'../docs',file),'utf8'));
     const org='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
-    await pool.query('INSERT INTO organizations(id) VALUES($1),($2)',[org,other]);
+    const uid='55555555-5555-4555-8555-555555555555',group='66666666-6666-4666-8666-666666666666';
+    await pool.query("INSERT INTO organizations(id,name,status) VALUES($1,'fixture A','active'),($2,'fixture B','active')",[org,other]);
+    await pool.query("INSERT INTO users(id,status) VALUES($1,'active')",[uid]);
+    await pool.query("INSERT INTO memberships VALUES($1,$2,'member','active',true)",[org,uid]);
+    const now=Date.now();
+    await pool.query(`INSERT INTO transfer_groups(id,sender_email,token_hash,expires_at,organization_id,sender_user_id)
+      VALUES($1,'fixture@example.invalid','fixture-only',to_timestamp($2/1000.0),$3,$4)`,[group,now+86400000,org,uid]);
     const ids=Array.from({length:20},(_,i)=>`33333333-3333-4333-8333-${String(i).padStart(12,'0')}`);
-    for(const id of ids)await pool.query('INSERT INTO transfers(id,organization_id) VALUES($1,$2)',[id,org]);
-    const now=Date.UTC(2026,9,1),plan={id:'pilot',version:'1',bytesPerContractedSender:5000000000,maxFileBytes:5000000000,warningPercent:80,reservationTtlMs:60000,retentionDays:7,downloadWindowMs:3600000,downloadAlertBytes:5000000000,countingMode:'received_bytes'};
-    const deps={now:()=>now,newId:()=>randomBytes(8).toString('hex'),transfer:async(g,t,o)=>{const r=(await pool.query('SELECT id,organization_id::text FROM transfers WHERE id=$1 AND organization_id=$2',[t,o])).rows[0];return r?{organizationId:o,senderUserId:'user',groupId:g,transferId:t,objectName:`incoming/${o}/${t}`,createdAt:now,accessExpiresAt:now+7*86400000}:null},metadata:async()=>null,deleteGeneration:async()=>{},uploadClosed:async()=>false};
+    for(const id of ids)await pool.query(`INSERT INTO transfers(id,organization_id,sender_user_id,group_id,sender_email,original_filename,content_type,size_bytes,storage_object)
+      VALUES($1,$2,$3,$4,'fixture@example.invalid','fixture.bin','application/octet-stream',1000000000,$5)`,[id,org,uid,group,`incoming/${org}/${id}`]);
+    const plan={id:'pilot',version:'1',bytesPerContractedSender:5000000000,maxFileBytes:5000000000,warningPercent:80,reservationTtlMs:60000,retentionDays:7,downloadWindowMs:3600000,downloadAlertBytes:5000000000,countingMode:'received_bytes'};
+    const deps={now:()=>now,newId:()=>randomBytes(8).toString('hex'),transfer:async()=>{throw Error('Nested connection forbidden');},metadata:async()=>({sizeBytes:1000000000,generation:'9007199254740993'}),deleteGeneration:async()=>{},uploadClosed:async()=>false};
     const service=new CommercialUsageService(new PgCommercialUsageStore(pool),deps),operator={actorId:'operator',permissions:['allowance:apply']};
-    const allowance=o=>({organizationId:o,periodId:'2026-10',startsAt:now,endsAt:Date.UTC(2026,10,1),contractedSenders:2,baseQuotaBytes:10000000000,sourceOrderId:'approved-order',sourceRevision:1,effectiveAt:now,sendingEnabled:true,plan});
+    const allowance=o=>({organizationId:o,periodId:'test-period',startsAt:now,endsAt:now+86400000,contractedSenders:2,baseQuotaBytes:10000000000,sourceOrderId:'approved-order',sourceRevision:1,effectiveAt:now,sendingEnabled:true,plan});
     await service.applyAllowance(operator,allowance(org));await service.applyAllowance(operator,allowance(org));await service.applyAllowance(operator,allowance(other));
-    const ctx={organization:{id:org,status:'active'},user:{id:'user',status:'active'},membership:{organizationId:org,userId:'user',role:'member',status:'active',canSend:true}};
-    const results=await Promise.allSettled(ids.map((id,i)=>service.reserve(ctx,'2026-10',{requestId:'request-'+i,groupId:'group',transferId:id,bytes:1000000000})));
+    const ctx={organization:{id:org,status:'active'},user:{id:uid,status:'active'},membership:{organizationId:org,userId:uid,role:'member',status:'active',canSend:true}};
+    const results=await Promise.allSettled(ids.map((id,i)=>service.reserve(ctx,'test-period',{requestId:'request-'+i,groupId:group,transferId:id,bytes:1000000000})));
     assert.equal(results.filter(r=>r.status==='fulfilled').length,10);
-    const p=await service.usage(ctx,'2026-10');assert.equal(p.period.reservedBytes,10000000000);
+    const p=await service.usage(ctx,'test-period');assert.equal(p.period.reservedBytes,10000000000);
+    const completed=results.findIndex(r=>r.status==='fulfilled');
+    await service.complete(ctx,'test-period','request-'+completed);await service.complete(ctx,'test-period','request-'+completed);
+    const actual=(await pool.query('SELECT storage_generation,size_bytes,status FROM transfers WHERE id=$1',[ids[completed]])).rows[0];
+    assert.equal(actual.storage_generation,'9007199254740993');assert.equal(actual.status,'scanning');
     await assert.rejects(pool.query('UPDATE send_usage_events SET payload=payload'),/append-only/);
     // DB itself rejects an A transfer referenced from a B reservation, not just the API.
-    const payload={id:'cross',organizationId:other,periodId:'2026-10'};
-    await assert.rejects(pool.query('INSERT INTO send_usage_reservations VALUES($1,$2,$3,$4,$5,$6)',[other,'2026-10','cross',ids[0],'cross-object',JSON.stringify(payload)]),e=>e.code==='23503');
+    const payload={id:'cross',organizationId:other,periodId:'test-period'};
+    await assert.rejects(pool.query('INSERT INTO send_usage_reservations VALUES($1,$2,$3,$4,$5,$6)',[other,'test-period','cross',ids[0],'cross-object',JSON.stringify(payload)]),e=>e.code==='23503');
   } finally {
     if(pool)await pool.end();
     // Only the generated, validated namespace is removed; no table/data outside it is targeted.

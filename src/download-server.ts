@@ -1,5 +1,7 @@
+import { commercialHttpSerializers } from './lib/commercialHttpLogging';
+import { commercialUsageRuntime, commercialDownloadObserver } from './services/commercialUsageRuntime';
 import path from 'path';
-import express from 'express';
+import express, {type ErrorRequestHandler} from 'express';
 import pinoHttp from 'pino-http';
 import pino from 'pino';
 import { loadConfig } from './config';
@@ -27,7 +29,7 @@ async function main(): Promise<void> {
 
   const app = express();
   app.set('trust proxy', true);
-  app.use(pinoHttp({ logger }));
+  app.use(pinoHttp({ logger, ...(config.commercial ? {serializers:commercialHttpSerializers} : {}) }));
   app.use(express.json());
 
   app.get('/healthz', (_req, res) => res.status(200).send('ok'));
@@ -51,8 +53,15 @@ async function main(): Promise<void> {
       otpService,
       config,
       otpRateLimiter,
+      config.commercial ? commercialDownloadObserver(pool,commercialUsageRuntime(pool,storageService.commercial())) : undefined,
     ),
   );
+
+  const errors: ErrorRequestHandler = (_err,_req,res,_next) => {
+    logger.warn({code:'DOWNLOAD_REQUEST_FAILED'},'Download request failed');
+    res.status(500).json({error:'REQUEST_FAILED'});
+  };
+  app.use(errors);
 
   // /d/:token はSPA的に単一の静的ページを返し、トークンはクライアントJS側でURLから読み取る。
   app.get('/d/:token', (_req, res) => {

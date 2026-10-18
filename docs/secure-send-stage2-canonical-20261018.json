@@ -1,0 +1,141 @@
+{
+  "main": "9c1b00230f5efe6ddbae2b8c3ef5e7d0f87787b7",
+  "stage1Pr5": "e87727a48dcf3ec99cb524a2dc356965e373d4de",
+  "localBase": "ffd39ef",
+  "branch": "feat/secure-send-stage2-20261018",
+  "issues": [
+    {
+      "number": 38,
+      "title": "PIRA共同購買：InfraVision初期費用100%atLIB・月額40%シェア",
+      "updatedAt": "2026-10-18T07:48:52Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/38"
+    },
+    {
+      "number": 37,
+      "title": "PIRA共同購買の対象サービス確定：Guard・Send・InfraVision／業務KAIZEN対象外",
+      "updatedAt": "2026-10-18T07:44:30Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/37"
+    },
+    {
+      "number": 36,
+      "title": "Secure Guard DNSFilter台数・使用量API PoC結果と請求仕様回答待ち",
+      "updatedAt": "2026-10-18T07:38:59Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/36"
+    },
+    {
+      "number": 35,
+      "title": "日割り料金の端数処理：1円未満切り捨て",
+      "updatedAt": "2026-10-18T05:54:39Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/35"
+    },
+    {
+      "number": 34,
+      "title": "契約数量の減少・解約：毎月20日締切／月末停止／翌月初請求",
+      "updatedAt": "2026-10-18T05:51:46Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/34"
+    },
+    {
+      "number": 33,
+      "title": "解約申込締切：atLIB受付毎月20日・月末解約",
+      "updatedAt": "2026-10-18T05:49:18Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/33"
+    },
+    {
+      "number": 32,
+      "title": "共同購買の契約・請求方針：月額契約を標準採用",
+      "updatedAt": "2026-10-18T05:41:32Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/32"
+    },
+    {
+      "number": 31,
+      "title": "組合管理ポータル業務フロー v1：申込確認→発注→提供→月次請求",
+      "updatedAt": "2026-10-18T04:56:34Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/31"
+    },
+    {
+      "number": 30,
+      "title": "組合向け管理ポータル：申込・契約・利用・atLIB発注・請求",
+      "updatedAt": "2026-10-18T04:54:49Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/30"
+    },
+    {
+      "number": 29,
+      "title": "PIRA共同購買の顧客導線：atLIB無料相談・提案、組合正式申込",
+      "updatedAt": "2026-10-18T04:51:28Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/29"
+    },
+    {
+      "number": 28,
+      "title": "【訂正済】共同購買：組合の上乗せ利益と関係者レベニューシェアを分離",
+      "updatedAt": "2026-10-18T04:42:14Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/28"
+    },
+    {
+      "number": 27,
+      "title": "PIRA共同購買：組合が申込受付・料金回収しatLIBへ一括発注支払",
+      "updatedAt": "2026-10-18T04:40:05Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/27"
+    },
+    {
+      "number": 26,
+      "title": "セキュリティ簡易診断後の任意相談導線｜設計方針と協議事項",
+      "updatedAt": "2026-10-18T02:16:29Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/26"
+    },
+    {
+      "number": 25,
+      "title": "PIRA調査サイトのプライバシー表示と任意サービス申込導線",
+      "updatedAt": "2026-10-18T02:09:53Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/25"
+    },
+    {
+      "number": 24,
+      "title": "Secure Services 開発原則：PIRA初期展開とatLIB自社・他チャネルへの横展開",
+      "updatedAt": "2026-10-18T02:01:20Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/24"
+    },
+    {
+      "number": 23,
+      "title": "関係者向け事業企画書 v4 正式採用・協議待ちチェックポイント",
+      "updatedAt": "2026-10-18T01:57:40Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/23"
+    },
+    {
+      "number": 22,
+      "title": "PIRA実態調査とatLIB顧客管理のデータ分離・非営業利用方針",
+      "updatedAt": "2026-10-18T01:24:25Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/22"
+    },
+    {
+      "number": 21,
+      "title": "PIRA提案・採択を商用開発Go条件とする事業ゲート",
+      "updatedAt": "2026-10-18T01:09:55Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/21"
+    },
+    {
+      "number": 20,
+      "title": "共通顧客ポータル導線：契約サービス別分岐と共通問い合わせ",
+      "updatedAt": "2026-10-18T00:56:49Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/20"
+    },
+    {
+      "number": 19,
+      "title": "Secure Services 対外ブランド決定：中小企業セキュリティ対策支援プログラム",
+      "updatedAt": "2026-10-17T22:46:41Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/19"
+    },
+    {
+      "number": 17,
+      "title": "Secure Guard / Send 共通料金・レベニューシェア設計原則",
+      "updatedAt": "2026-10-17T22:08:51Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/17"
+    },
+    {
+      "number": 16,
+      "title": "Secure Services共通顧客・契約・請求管理基盤｜後工程実装チェックポイント",
+      "updatedAt": "2026-10-17T21:39:58Z",
+      "url": "https://github.com/yoshihisahagisaka/atlib-corporate-site/issues/16"
+    }
+  ],
+  "scope": "Development code/tests/preparation only. No real DB application, infrastructure, production, main merge or commercial release."
+}

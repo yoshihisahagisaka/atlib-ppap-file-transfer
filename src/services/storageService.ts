@@ -1,4 +1,5 @@
 import { Storage } from '@google-cloud/storage';
+import { CommercialGcs } from './commercialGcs';
 
 interface GcsErrorLike {
   code?: number;
@@ -8,6 +9,15 @@ export class StorageService {
   private readonly storage = new Storage();
 
   constructor(private readonly bucketName: string) {}
+
+  commercial(): CommercialGcs {
+    const bucket = this.storage.bucket(this.bucketName);
+    return new CommercialGcs({file: name => ({
+      getSignedUrl: options => bucket.file(name).getSignedUrl(options),
+      getMetadata: async () => { const [metadata] = await bucket.file(name).getMetadata(); return [metadata]; },
+      delete: options => bucket.file(name).delete(options),
+    })});
+  }
 
   objectPath(transferId: string, filename: string): string {
     return `incoming/${transferId}/${filename}`;
@@ -32,15 +42,15 @@ export class StorageService {
     return url;
   }
 
-  async createDownloadUrl(objectPath: string, filename: string, expiresMinutes: number): Promise<string> {
+  async createDownloadUrl(objectPath: string, filename: string, expiresMinutes: number, generation?: string | null, deadline?: number): Promise<string> {
     const asciiFallback = filename.replace(/[^\x20-\x7E]/g, '_');
     const [url] = await this.storage
       .bucket(this.bucketName)
-      .file(objectPath)
+      .file(objectPath, generation ? { generation } : undefined)
       .getSignedUrl({
         version: 'v4',
         action: 'read',
-        expires: Date.now() + expiresMinutes * 60 * 1000,
+        expires: Math.min(Date.now() + expiresMinutes * 60 * 1000, deadline ?? Infinity),
         responseDisposition: `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
       });
     return url;
@@ -59,12 +69,12 @@ export class StorageService {
     }
   }
 
-  async download(objectPath: string): Promise<Buffer> {
-    const [buffer] = await this.storage.bucket(this.bucketName).file(objectPath).download();
+  async download(objectPath: string, generation?: string | null): Promise<Buffer> {
+    const [buffer] = await this.storage.bucket(this.bucketName).file(objectPath, generation ? { generation } : undefined).download();
     return buffer;
   }
 
-  async delete(objectPath: string): Promise<void> {
-    await this.storage.bucket(this.bucketName).file(objectPath).delete({ ignoreNotFound: true });
+  async delete(objectPath: string, generation?: string | null): Promise<void> {
+    await this.storage.bucket(this.bucketName).file(objectPath).delete({ ignoreNotFound: true, ...(generation ? { ifGenerationMatch: generation } : {}) });
   }
 }

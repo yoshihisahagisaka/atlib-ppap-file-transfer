@@ -76,7 +76,7 @@ export async function scanUploadedObject(
   const tmpDir = await mkdtemp(path.join(tmpdir(), 'ppap-scan-'));
   const localPath = path.join(tmpDir, 'payload');
   try {
-    const buffer = await storageService.download(objectName);
+    const buffer = await storageService.download(objectName, transfer.storageGeneration);
     await writeFile(localPath, buffer);
 
     logger.info({ transferId: transfer.id }, 'Running clamscan');
@@ -94,7 +94,7 @@ export async function scanUploadedObject(
 
     if (infected) {
       logger.warn({ transferId: transfer.id }, 'Infected file detected; deleting from storage');
-      await storageService.delete(objectName);
+      await storageService.delete(objectName, transfer.storageGeneration);
       const group2 = transfer.groupId ? await transferGroupRepo.findById(transfer.groupId) : null;
       if (group2) {
         await mailer.sendInfectedNotice(group2.senderEmail, transfer.originalFilename);

@@ -2,6 +2,7 @@
 export type TransferStatus = 'pending_upload' | 'scanning' | 'clean' | 'infected';
 
 export interface Transfer {
+  storageGeneration?: string | null;
   id: string;
   groupId: string | null;
   senderEmail: string;

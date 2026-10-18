@@ -23,6 +23,27 @@ export class PgCommercialUsageStore implements UsageStore {
       const read = async <V>(table: string, keyColumn: string, key: string): Promise<V | null> =>
         payload<V>((await q(`SELECT payload FROM ${table} WHERE organization_id=$1 AND period_id=$2 AND ${keyColumn}=$3`, [key])).rows);
       const tx: UsageTransaction = {
+        transferScope: async (groupId, transferId, userId) => {
+          // This lock is also required by approved membership/organization writers.
+          const row = (await c.query(`SELECT t.id,t.organization_id,t.sender_user_id,t.group_id,t.storage_object,
+            t.created_at,g.expires_at FROM organizations o
+            JOIN memberships m ON m.organization_id=o.id JOIN users u ON u.id=m.user_id
+            JOIN transfers t ON t.organization_id=o.id AND t.sender_user_id=u.id
+            JOIN transfer_groups g ON g.organization_id=t.organization_id AND g.id=t.group_id
+            WHERE o.id=$1 AND u.id=$2 AND t.id=$3 AND g.id=$4 AND g.sender_user_id=u.id
+              AND o.status='active' AND u.status='active' AND m.status='active' AND m.can_send=true
+              AND g.revoked_at IS NULL AND g.expires_at>now()
+            FOR SHARE OF o,m,u,g,t`, [org,userId,transferId,groupId])).rows[0];
+          return row ? { organizationId: String(row.organization_id), senderUserId: String(row.sender_user_id),
+            groupId: String(row.group_id), transferId: String(row.id), objectName: String(row.storage_object),
+            createdAt: new Date(row.created_at as string).getTime(), accessExpiresAt: new Date(row.expires_at as string).getTime() } : null;
+        },
+        commitTransfer: async r => {
+          const result = await c.query(`UPDATE transfers SET size_bytes=$4,storage_generation=$5,
+            status='scanning',uploaded_at=now() WHERE organization_id=$1 AND id=$2 AND sender_user_id=$3
+            AND status='pending_upload' RETURNING id`, [org,r.transferId,r.senderUserId,r.bytes,r.generation]);
+          requireValue(result.rows.length === 1, 'TRANSFER_NOT_PENDING');
+        },
         overlapsOtherPeriod: async (startsAt,endsAt) => (await q(`SELECT 1 FROM send_usage_periods WHERE organization_id=$1 AND period_id<>$2
           AND (allowance->>'startsAt')::BIGINT < $3 AND (allowance->>'endsAt')::BIGINT > $4 LIMIT 1`,[endsAt,startsAt])).rows.length > 0,
         period: async () => {

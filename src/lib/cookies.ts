@@ -10,7 +10,9 @@ export function parseCookies(req: Request): Record<string, string> {
     if (eq === -1) continue;
     const name = part.slice(0, eq).trim();
     const value = part.slice(eq + 1).trim();
-    if (name) out[name] = decodeURIComponent(value);
+    if (name) {
+      try { out[name] = decodeURIComponent(value); } catch { /* Malformed untrusted cookie is not a valid credential. */ }
+    }
   }
   return out;
 }

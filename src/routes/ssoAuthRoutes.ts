@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import { Router, type Response } from 'express';
+import type { VerifiedIdentity } from '../services/commercialIdentity';
 import type pino from 'pino';
 import type { OidcProvider } from '../lib/oidcProvider';
 import type { SsoVerifyRepo } from '../services/ssoVerifyRepo';
@@ -25,10 +26,11 @@ import type { SsoProvider } from '../domain/ssoVerify';
 export function createSsoAuthRouter(
   provider: SsoProvider,
   oidc: OidcProvider,
-  repo: SsoVerifyRepo,
+  repo: SsoVerifyRepo | null,
   sessionSecret: string,
   nodeEnv: string,
   logger: pino.Logger,
+  commercial?: { complete(identity: VerifiedIdentity, res: Response): Promise<void> },
 ) {
   const router = Router();
   const secureCookies = nodeEnv === 'production';
@@ -39,7 +41,7 @@ export function createSsoAuthRouter(
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = codeChallengeFromVerifier(codeVerifier);
 
-    const statePayload: SsoStateCookiePayload = { state, nonce, codeVerifier, provider };
+    const statePayload: SsoStateCookiePayload = { state, nonce, codeVerifier, provider, issuedAt: Date.now() };
     setCookie(res, SSO_STATE_COOKIE, signValue(sessionSecret, statePayload), {
       maxAgeSeconds: SSO_STATE_TTL_SECONDS,
       secure: secureCookies,
@@ -59,7 +61,8 @@ export function createSsoAuthRouter(
     clearCookie(res, SSO_STATE_COOKIE);
 
     const stateCookie = rawState ? verifyValue<SsoStateCookiePayload>(sessionSecret, rawState) : null;
-    if (!stateCookie || stateCookie.provider !== provider) {
+    if (!stateCookie || stateCookie.provider !== provider || (commercial &&
+      (!stateCookie.issuedAt || stateCookie.issuedAt > Date.now() || Date.now()-stateCookie.issuedAt > SSO_STATE_TTL_SECONDS*1000))) {
       res.status(400).send('ログイン試行が見つからないか期限切れです。もう一度お試しください。');
       return;
     }
@@ -79,7 +82,10 @@ export function createSsoAuthRouter(
 
     try {
       const { idToken } = await oidc.exchangeCode(code, stateCookie.codeVerifier);
-      const { email } = await oidc.verifyIdToken(idToken, stateCookie.nonce);
+      const identity = await oidc.verifyIdToken(idToken, stateCookie.nonce);
+      if (commercial) { await commercial.complete(identity, res); return; }
+      const { email } = identity;
+      if (!repo) throw new Error('Provisioning repository missing');
       const result = await provisionUser(repo, email, provider);
 
       const sessionPayload: SsoSessionCookiePayload = { email, provider, result };
@@ -89,7 +95,7 @@ export function createSsoAuthRouter(
       });
       res.redirect('/sso-verify/');
     } catch (err) {
-      logger.error({ err, provider }, 'OIDC callback processing failed');
+      logger.warn({ provider }, 'OIDC callback processing failed');
       res.status(401).send('ログインに失敗しました。もう一度お試しください。');
     }
   });

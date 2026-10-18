@@ -87,10 +87,11 @@ export class CommercialUsageService {
   async reserve(context: TenantContext, periodId: string, input: { requestId: string; groupId: string; transferId: string; bytes: number }): Promise<Reservation> {
     assertSender(context); identifier(input.requestId); identifier(periodId);
     const org = context.organization.id;
-    const transfer = await this.deps.transfer(input.groupId, input.transferId, org);
-    requireValue(transfer, 'TRANSFER_NOT_FOUND'); assertOwnedTransfer(context, transfer);
-    requireValue(transfer.groupId === input.groupId && transfer.transferId === input.transferId, 'TRANSFER_NOT_FOUND');
     return this.store.transaction(org, periodId, async tx => {
+      const transfer = tx.transferScope ? await tx.transferScope(input.groupId, input.transferId, context.user.id) :
+        await this.deps.transfer(input.groupId, input.transferId, org);
+      requireValue(transfer, 'TRANSFER_NOT_FOUND'); assertOwnedTransfer(context, transfer);
+      requireValue(transfer.groupId === input.groupId && transfer.transferId === input.transferId, 'TRANSFER_NOT_FOUND');
       const p = await this.period(tx), old = await tx.reservation(input.requestId);
       if (old) {
         requireValue(old.organizationId === org && old.periodId === periodId, 'RESERVATION_NOT_FOUND');
@@ -116,7 +117,8 @@ export class CommercialUsageService {
       requireValue(r && r.organizationId === context.organization.id && r.periodId === periodId && r.senderUserId === context.user.id, 'RESERVATION_NOT_FOUND');
       if (r.state === 'committed') return r;
       requireValue(r.state === 'reserved' && this.deps.now() < r.accessExpiresAt, 'RESERVATION_NOT_ACTIVE');
-      const transfer = await this.deps.transfer(r.groupId, r.transferId, context.organization.id);
+      const transfer = tx.transferScope ? await tx.transferScope(r.groupId, r.transferId, context.user.id) :
+        await this.deps.transfer(r.groupId, r.transferId, context.organization.id);
       requireValue(transfer && transfer.objectName === r.objectName && transfer.accessExpiresAt === r.accessExpiresAt, 'TRANSFER_NOT_FOUND');
       assertOwnedTransfer(context, transfer);
       const meta = await this.deps.metadata(r.objectName);
@@ -124,6 +126,7 @@ export class CommercialUsageService {
       // Bytes were reserved in this period; completion remains possible after the month boundary.
       p.reservedBytes -= r.bytes; integer(p.reservedBytes, 'RESERVED'); p.consumedBytes = sum(p.consumedBytes, meta.sizeBytes);
       r.state = 'committed'; r.generation = meta.generation;
+      if (tx.commitTransfer) await tx.commitTransfer(r);
       await tx.saveReservation(r); await tx.savePeriod(p);
       await tx.appendEvent({ id: `commit:${r.id}`, kind: 'received_bytes_committed', actor: context.user.id, at: this.deps.now(), data: { bytes: meta.sizeBytes, generation: meta.generation } });
       await this.thresholds(tx, p); return r;

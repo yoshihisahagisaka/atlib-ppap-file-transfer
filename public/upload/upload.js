@@ -192,7 +192,7 @@ document.getElementById('upload-form').addEventListener('submit', async (ev) => 
       created.map(async (c) => {
         const putRes = await fetch(c.uploadUrl, {
           method: 'PUT',
-          headers: { 'Content-Type': c.file.type || 'application/octet-stream' },
+          headers: c.uploadHeaders ?? { 'Content-Type': c.file.type || 'application/octet-stream' },
           body: c.file,
         });
         if (!putRes.ok) throw new Error(`アップロード失敗: ${c.file.name} (HTTP ${putRes.status})`);
