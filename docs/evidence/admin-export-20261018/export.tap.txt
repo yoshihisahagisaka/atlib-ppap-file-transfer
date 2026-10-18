@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: CSV protects formula/DDE including whitespace/control prefixes and escapes commas/quotes/newlines
+ok 1 - CSV protects formula/DDE including whitespace/control prefixes and escapes commas/quotes/newlines
+  ---
+  duration_ms: 2.5732
+  type: 'test'
+  ...
+# Subtest: strict date interval rejects invalid dates, reversed/excessive range, unknown kind and non-UTC strings
+ok 2 - strict date interval rejects invalid dates, reversed/excessive range, unknown kind and non-UTC strings
+  ---
+  duration_ms: 2.4575
+  type: 'test'
+  ...
+# Subtest: member and suspended contexts cannot export or connect to DB; admin needs no sender seat
+ok 3 - member and suspended contexts cannot export or connect to DB; admin needs no sender seat
+  ---
+  duration_ms: 1.075
+  type: 'test'
+  ...
+# Subtest: fresh DB role revocation fails closed under locks before history read or audit write
+ok 4 - fresh DB role revocation fails closed under locks before history read or audit write
+  ---
+  duration_ms: 0.3282
+  type: 'test'
+  ...
+# Subtest: transfers bind trusted org and half-open interval, preserve null/unmeasured facts, audit before releasing bytes
+ok 5 - transfers bind trusted org and half-open interval, preserve null/unmeasured facts, audit before releasing bytes
+  ---
+  duration_ms: 0.7307
+  type: 'test'
+  ...
+# Subtest: audit scopes both parent IDs, excludes contradictory references and only admits explicitly scoped export events
+ok 6 - audit scopes both parent IDs, excludes contradictory references and only admits explicitly scoped export events
+  ---
+  duration_ms: 0.418
+  type: 'test'
+  ...
+# Subtest: audit write failure prevents CSV response; oversize/too many rows roll back without a success event
+ok 7 - audit write failure prevents CSV response; oversize/too many rows roll back without a success event
+  ---
+  duration_ms: 0.5981
+  type: 'test'
+  ...
+# Subtest: bounded viewing uses same model and deterministic pagination without creating export event
+ok 8 - bounded viewing uses same model and deterministic pagination without creating export event
+  ---
+  duration_ms: 0.2715
+  type: 'test'
+  ...
+# Subtest: HTTP role guard, tenant-selector spoof rejection and csv-only contract, no-store attachment/audit ID
+ok 9 - HTTP role guard, tenant-selector spoof rejection and csv-only contract, no-store attachment/audit ID
+  ---
+  duration_ms: 87.9726
+  type: 'test'
+  ...
+# Subtest: real PostgreSQL tenant-mixing fixtures, export query plans and role-change concurrency
+ok 10 - real PostgreSQL tenant-mixing fixtures, export query plans and role-change concurrency # SKIP Requires separately approved validation DB application; SQL port tests are not DB isolation proof
+  ---
+  duration_ms: 0.3398
+  type: 'test'
+  ...
+# Subtest: read-only preflight refuses missing, non-local, generic DB names and connection query overrides
+ok 11 - read-only preflight refuses missing, non-local, generic DB names and connection query overrides
+  ---
+  duration_ms: 2.1039
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 477.2897

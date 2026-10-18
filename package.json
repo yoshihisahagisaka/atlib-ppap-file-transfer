@@ -16,7 +16,8 @@
     "dev:sso-verify": "node --env-file=sso-verify.env -r ts-node/register src/sso-verify-server.ts",
     "migrate": "node --env-file=.env -r ts-node/register migrations/runner.ts",
     "migrate:sso-verify": "node --env-file=sso-verify.env -r ts-node/register migrations/runner.ts",
-    "test:commercial:connection": "npm run build && node --test test/commercialConnection.test.cjs"
+    "test:commercial:connection": "npm run build && node --test test/commercialConnection.test.cjs",
+    "test:commercial:export": "npm run build && node --test test/historyExport.test.cjs"
   },
   "engines": {
     "node": ">=20"

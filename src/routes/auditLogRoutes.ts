@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { AuditLogRepo } from '../services/auditLogRepo';
 
 const eventLabel: Record<string, string> = {
+  history_exported: '履歴CSV出力',
   created: '送信作成',
   uploaded: 'アップロード完了',
   scan_clean: 'スキャン完了(安全)',

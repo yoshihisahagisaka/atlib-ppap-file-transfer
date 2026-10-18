@@ -6,6 +6,7 @@ const fs = require('node:fs');
 const { randomBytes } = require('node:crypto');
 const { PgCommercialUsageStore } = require('../src/services/pgCommercialUsageStore.ts');
 const { CommercialUsageService } = require('../src/services/commercialUsageService.ts');
+const { HistoryExportService } = require('../src/services/historyExport.ts');
 const url = process.env.SECURE_SEND_USAGE_TEST_DATABASE_URL;
 
 test('PostgreSQL: isolated schema concurrency, composite tenant FK and append-only history', {skip:!url}, async()=>{
@@ -53,6 +54,31 @@ test('PostgreSQL: isolated schema concurrency, composite tenant FK and append-on
     // DB itself rejects an A transfer referenced from a B reservation, not just the API.
     const payload={id:'cross',organizationId:other,periodId:'test-period'};
     await assert.rejects(pool.query('INSERT INTO send_usage_reservations VALUES($1,$2,$3,$4,$5,$6)',[other,'test-period','cross',ids[0],'cross-object',JSON.stringify(payload)]),e=>e.code==='23503');
+    // Export integration, only in this separately approved disposable fixture schema.
+    const otherUser='77777777-7777-4777-8777-777777777777',otherGroup='88888888-8888-4888-8888-888888888888',otherTransfer='99999999-9999-4999-8999-999999999999';
+    await pool.query("UPDATE memberships SET role='admin' WHERE organization_id=$1 AND user_id=$2",[org,uid]);
+    await pool.query("INSERT INTO users(id,status) VALUES($1,'active')",[otherUser]);
+    await pool.query("INSERT INTO memberships VALUES($1,$2,'admin','active',false)",[other,otherUser]);
+    await pool.query(`INSERT INTO transfer_groups(id,sender_email,token_hash,expires_at,organization_id,sender_user_id)
+      VALUES($1,'other@example.invalid','other-fixture',to_timestamp($2/1000.0),$3,$4)`,[otherGroup,now+86400000,other,otherUser]);
+    await pool.query(`INSERT INTO transfers(id,organization_id,sender_user_id,group_id,sender_email,original_filename,content_type,size_bytes,storage_object)
+      VALUES($1,$2,$3,$4,'other@example.invalid','FOREIGN_FILE.bin','application/octet-stream',1,'foreign-object')`,[otherTransfer,other,otherUser,otherGroup]);
+    const ownAudit=(await pool.query(`INSERT INTO audit_logs(transfer_id,group_id,event,actor) VALUES($1,$2,'uploaded','fixture') RETURNING id`,[ids[completed],group])).rows[0].id;
+    await pool.query(`INSERT INTO audit_logs(transfer_id,group_id,event,actor) VALUES($1,$2,'uploaded','foreign')`,[otherTransfer,otherGroup]);
+    const poison=(await pool.query(`INSERT INTO audit_logs(transfer_id,group_id,event,actor) VALUES($1,$2,'uploaded','contradictory') RETURNING id`,[ids[completed],otherGroup])).rows[0].id;
+    await pool.query("INSERT INTO audit_logs(event,actor) VALUES('uploaded','orphan')");
+    const exporter=new HistoryExportService(pool,{maxDays:90,maxRows:100,maxBytes:1048576});
+    const admin={...ctx,membership:{...ctx.membership,role:'admin'}};
+    const range={kind:'transfers',from:new Date(now-1000).toISOString(),to:new Date(now+86400000).toISOString()};
+    const exported=await exporter.read(admin,range,{exportCsv:true});
+    assert.equal(exported.rows.length,20);assert.doesNotMatch(exported.csv.toString(),/FOREIGN_FILE|other@example/);
+    const logs=await exporter.read(admin,{...range,kind:'audit'},{exportCsv:true});
+    assert.ok(logs.rows.some(r=>r.auditId===ownAudit));assert.ok(logs.rows.some(r=>r.auditId===exported.operationId));
+    assert.ok(!logs.rows.some(r=>r.auditId===poison));assert.doesNotMatch(logs.csv.toString(),/foreign|contradictory|orphan/);
+    const spoof={...admin,organization:{id:other,status:'active'},membership:{...admin.membership,organizationId:other}};
+    await assert.rejects(exporter.read(spoof,range,{exportCsv:true}));
+    await pool.query("UPDATE memberships SET role='member' WHERE organization_id=$1 AND user_id=$2",[org,uid]);
+    await assert.rejects(exporter.read(admin,range,{exportCsv:true})); // stale session/context cannot retain admin.
   } finally {
     if(pool)await pool.end();
     // Only the generated, validated namespace is removed; no table/data outside it is targeted.

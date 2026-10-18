@@ -53,6 +53,7 @@ export interface DownloadOtp {
 }
 
 export type AuditEvent =
+  | 'history_exported'
   | 'created'
   | 'uploaded'
   | 'scan_clean'
