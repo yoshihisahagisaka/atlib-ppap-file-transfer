@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-18 JST",
+  "scope": "read-only source review; no Production/DB/cloud changes",
+  "sendMain": "9c1b00230f5efe6ddbae2b8c3ef5e7d0f87787b7",
+  "sendLocalFoundation": "d6b51e1c1bc2f7979edd636d6603599180b63b0f",
+  "sendPR1": "d2fdd5b7015be4a3967e900f66c0e46a884d019d",
+  "sendPR3": "74facb2fd202b697f288701bca670f7bc70c86b5",
+  "corporatePR18": "60243f3d2bd174ab61b6c4bf43c1d736cfc262ab",
+  "corporateIssues": [
+    15,
+    16,
+    17
+  ],
+  "sources": [
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/routes/businessWebConsultationLead.ts",
+      "blob": "c0c15ccf460843d0c943205600ee5fc5e61bf18e",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/routes/businessWebConsultationLead.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/routes/adminBusinessWebConsultationLead.ts",
+      "blob": "0135d2335922866c2acc6c8580f5539ee2b9e447",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/routes/adminBusinessWebConsultationLead.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/services/businessWebConsultationLeadRepo.ts",
+      "blob": "dfded1ca6a5f915ebafab2d1cfb463b773fd95cd",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/services/businessWebConsultationLeadRepo.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/middleware/staffAuth.ts",
+      "blob": "f68eed2406ed848ef7e82b9d73201911e01492e4",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/middleware/staffAuth.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/services/publicCustomerSelfSubmissionService.ts",
+      "blob": "f597642b8833d4d4d0e1fb8672b43dfd0172b498",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/services/publicCustomerSelfSubmissionService.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/services/postDiagnosisWorker.ts",
+      "blob": "2cab7e6ac141877a253f5e366006d725c8c0f578",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/services/postDiagnosisWorker.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "migrations/025_business_web_consultation_leads.sql",
+      "blob": "502dc664f65a2f285779140864a22c5b65c71b29",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/migrations/025_business_web_consultation_leads.sql"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "migrations/022_diagnosis_report_pdf_generation_lease.sql",
+      "blob": "fd3144e9eb966cbeb58a7dd1c833b19a9dd7f4b7",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/migrations/022_diagnosis_report_pdf_generation_lease.sql"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "docs/sales-tools-production-canonical-policy-20261003.md",
+      "blob": "42fb36e31b04a2b7d0d9f34cf90a8c12621dbb2f",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/docs/sales-tools-production-canonical-policy-20261003.md"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/services/diagnosisPreparationRepo.ts",
+      "blob": "9c229517895fdb2ec8221a9a5e68bd9b9cb1e9ec",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/services/diagnosisPreparationRepo.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/services/vs1ReviewReportFeedbackRepo.ts",
+      "blob": "5aa53f4a82468299439649de7f58c73b8e20a8b3",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/services/vs1ReviewReportFeedbackRepo.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/middleware/rateLimit.ts",
+      "blob": "de03d3ef130da033f3c835817ffaa3244096bf8b",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/middleware/rateLimit.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "src/server.ts",
+      "blob": "fd9fbe063ca668921f02c778903b27453491174c",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/src/server.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "docs/production-release-test-case-audit-acl-036.md",
+      "blob": "f3a0d1e3b33100c0685892dbbf01f176160e4fd1",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/docs/production-release-test-case-audit-acl-036.md"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-sales-tools",
+      "ref": "d35581cec3dbc7d4ca2938f2a9c664906ccc5316",
+      "path": "docs/sales-tools-cross-service-dashboard-decision-20261013.md",
+      "blob": "33a3998087376c2ad595a2d6815f9db5951dec7f",
+      "url": "https://github.com/yoshihisahagisaka/atlib-sales-tools/blob/d35581cec3dbc7d4ca2938f2a9c664906ccc5316/docs/sales-tools-cross-service-dashboard-decision-20261013.md"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-msp-customer-portal",
+      "ref": "54124300f2b246aab5e8d0c355a7c899b11aa19e",
+      "path": "src/middleware/auth.ts",
+      "blob": "c0d51f34b6c1df00508d32526e97fba93cbab281",
+      "url": "https://github.com/yoshihisahagisaka/atlib-msp-customer-portal/blob/54124300f2b246aab5e8d0c355a7c899b11aa19e/src/middleware/auth.ts"
+    },
+    {
+      "repository": "yoshihisahagisaka/atlib-msp-customer-portal",
+      "ref": "54124300f2b246aab5e8d0c355a7c899b11aa19e",
+      "path": "src/services/customerRepo.ts",
+      "blob": "eba667ef7ef1e39383306a8e33e7e31c2c153da7",
+      "url": "https://github.com/yoshihisahagisaka/atlib-msp-customer-portal/blob/54124300f2b246aab5e8d0c355a7c899b11aa19e/src/services/customerRepo.ts"
+    }
+  ],
+  "limitations": [
+    "No fresh Production query or migration ledger inspection in this task",
+    "Local foundation not integrated with API/DB/SSO; no new tests executed",
+    "Prior retentionDeletionWorker not present by that name in current Sales Tools main tree",
+    "Estimates and proposed schema only, not implemented or approved architecture"
+  ],
+  "officialSources": [
+    "https://docs.cloud.google.com/storage/docs/access-control/signed-urls",
+    "https://docs.cloud.google.com/storage/docs/authentication/signatures",
+    "https://docs.cloud.google.com/storage/docs/lifecycle",
+    "https://docs.cloud.google.com/storage/docs/soft-delete"
+  ]
+}
