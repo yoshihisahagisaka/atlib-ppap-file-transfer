@@ -235,3 +235,24 @@ force/prune/volume一括列挙削除は使わない。imageは共有され得る
 
 ## 今回の静的検証
 PowerShell全12ブロックのParser検査PASS。Docker/APIアクセス拒否によりimage/起動/SQL/ACL/接続/復元は全て未実行SKIP。SQL構文・実効ACLは実PostgreSQLで未検証。構文PASSを実環境PASSとしない。
+
+## 2026-10-18 22:21 JST 実作成・read-only確認結果とhash訂正
+ユーザー端末の実行出力による証跡:
+- 公式PostgreSQL17.11、image sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675。
+- validation container/Volume作成、127.0.0.1:55432公開。初期PGDATA39M。FACTACTは作成後一覧でhealthy継続（負荷影響の計測は未実施）。
+- send_commercial_usage_test作成、owner send_migrator。3Roleのcontainer内TCP password認証成功。migrator以外CREATEなし、全3Role非superuser/非CREATEDB/非CREATEROLE/非BYPASSRLS、role membership0。
+- Windows側55432 TCP疎通True。その後Windows Node24.18.0の既存preflightで実認証/READ ONLY確認成功。
+- checkoutは4ad8470e、clean detached HEAD。npm.ps1はexecution policy拒否、npm.cmdへ変更（policy変更なし）。
+- READ_ONLY_COLLECTED / role send_readonly / read_only on / ledger null / columns,constraints,indexes,acl空 / counts空 / migrationApplied false / customerValuesCollected false。空DB接続確認であり商用SQL/fixture/外部サービス試験のPASSではない。
+- npm導入/preflight後C空き9.49GiB。restore55433は作成/起動していない。商用migration/アプリtable作成なし。
+
+### PR9 DDL hash表の訂正（本項が優先）
+PR9のhash算出時に、取得したSQLをローカルへ書き出す過程で末尾LFが1文字増えた。増分LFを1文字除いた再計算が、ユーザーのclean Git checkoutでの既存preflightの3値すべてと一致することを確認した。以前の表は原本のhashとして誤りであり撤回する。SQL原本は変更しない。CRLF→LF以外のtrim/末尾改行除去をpreflightへ追加しない。
+
+| docs/ファイル | 正しいLF正規化SHA-256（4ad8470e checkout） |
+|---|---|
+| tenant-foundation-schema.draft.sql | c0388738364cc03c36912aa7dea4007a3e27bd22e996e9f565e409d8b3cb71dd |
+| commercial-transfer-connection-schema.draft.sql | 1de3411f9baad19ff2fae323e480aa8f7c24bac6b78d345d9ec0a273952e9a91 |
+| commercial-usage-schema.draft.sql | f572ed562cbaeeb489134c34628b495f1ed5f26747e3700c154bd9133509a90d |
+
+専用空DBの構築・ホストread-only接続確認は完了。migration適用はNo-Go継続: baseline/採番/最終適用fileとhash、runtime object別ACL、backup/restoreまたは承認された空baseline復旧、適用/fixtureの承認scopeが未確定。今回の作成承認をmigration承認へ拡張しない。別の承認依頼を具体化する前にこれらを固定する。
